@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//i wanna add momentum when jumping, ill have to change the way speed work later
+
+
 public class DwPlayerMovementScript : MonoBehaviour
 {
     public enum PlayerState
@@ -16,7 +19,6 @@ public class DwPlayerMovementScript : MonoBehaviour
     private int vertical; //forward/backward
     private float mouseX; //mouse x move
     private float mouseY; //mouse y move
-    private bool isJumping;
     private bool isGrounded = true;
 
 
@@ -33,11 +35,29 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private float airSpeed = 6f;
     [SerializeField] private float walkSpeed = 12f;
     [SerializeField] private float sprintSpeed = 18f;
+    [SerializeField] private float airDegrade = 0.2f; //[range of 0-1]the rate at which horizontal speed degrade by it's length when exceeding airSpeed. took a long time to build the code for it.
     private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
     private float baseSpeed; //after applying state
     private float speed; //total speed (if in the future we want to add item)
-    private Vector3 moveDirection = Vector3.zero; //current character velocity gained by movement()
+    public Vector3 moveDirection = Vector3.zero; //current character velocity gained by movement()
     private Rigidbody rb;
+    
+
+    [Header("Movement:Jump")]
+    [SerializeField] private float jumpDuration = 0.15f; //duration of the jump (the longer you hold the jump key, the higher the jump)
+    [SerializeField] private float jumpStrength = 13f; //upward speed/second
+    [SerializeField] private float jumpMaxCooldown = 0.5f; //wait time until jump is ready
+    private float jumpTimer = 0f; //while it's 0, no jump
+    private float jumpCooldown = 0f; //0 or lower means it's ready to jump
+    private bool isJumping = false;
+    private bool jumped = false;
+
+    [Header("Gravity")]
+    [SerializeField] private float playerGravity = 9.81f; //this is m/s^2
+    [SerializeField] private float gravityMultiplier = 1f;
+    [SerializeField] private float multiplierDuration = 0.5f;
+    private float multiplierTimer = 0f;
+    //player gravity will continuously reduce moveDirection
 
 
     [Header("Camera")]
@@ -84,6 +104,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         headAxisY();
         horizontalKey();
         verticalKey();
+        jumpKey();
         getGround();
     }
 
@@ -114,13 +135,58 @@ public class DwPlayerMovementScript : MonoBehaviour
         //apply speed
         speed = baseSpeed; //baseSpeed was affected by playerState
 
+        //gravity
+        if (isGrounded) //when player is on ground
+        {
+            moveDirection.y = 0;
+        }
+        else //when player is mid air
+        {//apply velocity reduction per second (reducing m/s on each second)
+            moveDirection.y -= playerGravity * Time.deltaTime * spedUpFall();
+        }
 
-        //movement
-        moveDirection.z = vertical;
-        moveDirection.x = horizontal;
-        moveDirection.y = 0;
+        //normalize input
+        float normalH = normalizeVelocityAxis(horizontal, vertical);
+        float normalV = normalizeVelocityAxis(vertical, horizontal);
+
+        //horizontal velocity on ground
+        if (isGrounded)
+        {
+            moveDirection.x = normalH * speed;
+            moveDirection.z = normalV * speed;
+        }
+        else //horizontal velocity on air
+        {
+            if (
+                Mathf.Sqrt(
+                    moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z
+                    ) > airSpeed
+                )
+            {//if length is longer than airSpeed, degrade length of horizontal vector by 0.3
+                float normalX = normalizeVelocityAxis(moveDirection.x, moveDirection.z);
+                float normalZ = normalizeVelocityAxis(moveDirection.z, moveDirection.x);
+                float lengthXZ = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
+                moveDirection.x -= Time.deltaTime * normalX * airDegrade; //speed degradation when on air.
+                moveDirection.z -= Time.deltaTime * normalZ * airDegrade; //meaning that some speed are kept.
+
+                //add air strafing when going upward
+                if (jumped)
+                {
+                    moveDirection.x += 2 * normalH * speed * Time.deltaTime;
+                    moveDirection.z += 2 * normalV * speed * Time.deltaTime;
+                }
+            }
+            else
+            {//strafe like falling
+                moveDirection.x = normalH * speed;
+                moveDirection.z = normalV * speed;
+            }
+        }
+        jump();
+
+        //apply accelaration
         rb.MovePosition(
-            Time.deltaTime * speed * (
+            Time.deltaTime * (
             moveDirection.x * this.transform.right +
             moveDirection.y * this.transform.up +
             moveDirection.z * this.transform.forward
@@ -135,6 +201,85 @@ public class DwPlayerMovementScript : MonoBehaviour
 
 
 
+
+    //speed up fall after reaching peak of height (trick for a satisfying gravity effect learned from the dev of isadora edge in youtube short)
+    private float spedUpFall()
+    {
+        float multiplier = 1f;
+        if (jumped)
+        {
+            multiplierTimer = multiplierDuration;
+        }
+        else if(multiplierTimer > 0f)
+        {
+            multiplierTimer -= Time.deltaTime;
+            multiplier = gravityMultiplier;
+        }
+        return multiplier;
+    }
+
+    //normalize velocity on certain axis
+    private float normalizeVelocityAxis(float main, float other)
+    {
+        float result = 0f;
+        //using x^2 + y^2 = length as basis for normalization
+        float sum = Mathf.Sqrt((main*main) + (other*other));
+        if (sum == 0)
+        {
+            result = 0f;
+        }
+        else
+        {
+            result = main / sum;
+        }
+        return result;
+    }
+
+    //jumping
+    private void jump() //add jump force to rigidbody
+    {
+        float value = 0;
+        //timer
+        if (jumpCooldown > 0f)
+        {
+            jumpCooldown -= Time.deltaTime;
+        }
+        if(jumpTimer > 0f)
+        {
+            jumpTimer -= Time.deltaTime;
+        }
+
+        //process input
+        if (isJumping && isGrounded)
+        {
+            jumped = true;
+        }
+        else if (jumped && !isJumping) //if they stop jumping, jumped stop
+        {
+            jumped = false;
+        }
+
+        //when jump happened
+        if (jumped)
+        {
+            //initial, set cooldown and duration
+            if (isGrounded && jumpTimer <= 0f && jumpCooldown <= 0f)
+            {
+                jumpTimer = jumpDuration;
+                jumpCooldown = jumpMaxCooldown;
+                value += jumpStrength;
+            }
+            else if(jumpTimer > 0f) //in jump duration
+            {
+                value += jumpStrength;
+            }
+            else
+            {
+                jumped = false;
+            }
+        }
+        rb.AddForce(Vector3.up * value, ForceMode.Impulse);
+    }
 
     //set the camera latitude according to it's current latitude
     private void cameraLatRotation()
@@ -163,10 +308,39 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
     }
 
+    //roof Checking
+    private bool getRoofed()
+    {
+        bool isRoofed = false;
+        RaycastHit hit;
+        Ray ray = new Ray(this.transform.position, Vector3.up);
+        if (Physics.Raycast(ray, out hit, 1.05f, layer))
+        {
+            if (Vector3.Distance(this.transform.position, hit.point) > groundFootingRange)
+            {
+                isRoofed = true;
+            }
+        }
+        return isRoofed;
+    }
+
 
 
 
     //Keys ===================================================================
+
+    //update jump key, affects isJumping (as in intention wise)
+    private void jumpKey()
+    {
+        if (Input.GetKeyDown(JumpKey))
+        {
+            isJumping = true;
+        }
+        if (Input.GetKeyUp(JumpKey))
+        {
+            isJumping = false;
+        }
+    }
 
     //update vertical rotation (lat, minecraft uses lat as well aka latitude. hopefully i will learn to make a minecraft mod by 2026)
     private void headAxisY()
@@ -184,17 +358,14 @@ public class DwPlayerMovementScript : MonoBehaviour
     //update horizontal key for movement
     private void horizontalKey()
     {
-        if (Input.GetKeyDown(RightKey))
+        horizontal = 0;
+        if (Input.GetKey(RightKey))
         {
-            horizontal = 1;
+            horizontal += 1;
         }
-        else if (Input.GetKeyDown(LeftKey))
+        if (Input.GetKey(LeftKey))
         {
-            horizontal = -1;
-        }
-        else if (Input.GetKeyUp(RightKey) || Input.GetKeyUp(LeftKey))
-        {
-            horizontal = 0;
+            horizontal += -1;
         }
     }
 
@@ -202,17 +373,14 @@ public class DwPlayerMovementScript : MonoBehaviour
     //update vertical key for movement
     private void verticalKey()
     {
-        if (Input.GetKeyDown(ForwardKey))
+        vertical = 0;
+        if (Input.GetKey(ForwardKey))
         {
-            vertical = 1;
+            vertical += 1;
         }
-        else if (Input.GetKeyDown(BackwardKey))
+        if (Input.GetKey(BackwardKey))
         {
-            vertical = -1;
-        }
-        else if (Input.GetKeyUp(ForwardKey) || Input.GetKeyUp(BackwardKey))
-        {
-            vertical = 0;
+            vertical += -1;
         }
     }
 
