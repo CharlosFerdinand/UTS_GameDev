@@ -1,10 +1,13 @@
 using UnityEngine;
 
-public class PlayerMovementScript : MonoBehaviour
+public class DwPlayerMovementScript : MonoBehaviour
 {
     [Header("Inputs")]
-    public int horizontal;
-    public int vertical;
+    private int horizontal; //right/left
+    private int vertical; //forward/backward
+    private float mouseX; //mouse x move
+    private float mouseY; //mouse y move
+    [SerializeField] private float sensitivity = 225; //mouse sensitivity degree per second
     private bool sprinting;
     private bool jumping;
 
@@ -22,6 +25,10 @@ public class PlayerMovementScript : MonoBehaviour
     [SerializeField] private float baseSpeed = 8;
     private Vector3 moveDirection = Vector3.zero;
 
+    [Header("Camera")]
+    private GameObject camera;
+    private float cameraX = 0; //latitude way of change (like when you nod your head), store camera.rotation.x (aka rotation on x axis or kinda like the magnetic flow of wire)
+
 
 
 
@@ -29,19 +36,18 @@ public class PlayerMovementScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        camera = this.transform.GetChild(0).gameObject; //get first child, must be main camera
     }
 
     // Update is called once per frame
     void Update()
     {
         updateMovementInput();
-        movement();
     }
 
     private void LateUpdate()
     {
-        
+        movement();
     }
 
 
@@ -50,8 +56,10 @@ public class PlayerMovementScript : MonoBehaviour
     //Functions ==============================================================
 
     //this function is for checking input
-    private void updateMovementInput()
+    private void updateMovementInput() //Checks for input - - - - - - - - - -
     {
+        headAxisX();
+        headAxisY();
         horizontalKey();
         verticalKey();
         sprintKey();
@@ -59,12 +67,25 @@ public class PlayerMovementScript : MonoBehaviour
     }
 
     //function for translating input into movement
-    private void movement()
+    private void movement() //moves and rotates the character - - - - - - - -
     {
+        //movement
         moveDirection.z = vertical;
         moveDirection.x = horizontal;
         moveDirection.y = 0;
-        this.transform.Translate(moveDirection * Time.deltaTime);
+        this.transform.Translate(moveDirection * baseSpeed * Time.deltaTime);
+
+        //rotation
+        this.transform.Rotate(Vector3.up * mouseX * Time.deltaTime); //rotate on y axis
+        cameraLatRotation();
+    }
+
+    //set the camera latitude according to it's current latitude
+    private void cameraLatRotation()
+    {
+        cameraX -= mouseY * Time.deltaTime;
+        cameraX = Mathf.Clamp(cameraX, -88f, 88f); //ensures the camera does not over rotate
+        camera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
     }
 
 
@@ -72,6 +93,18 @@ public class PlayerMovementScript : MonoBehaviour
 
     //Keys ===================================================================
 
+    //update vertical rotation (lat, minecraft uses lat as well aka latitude. hopefully i will learn to make a minecraft mod by 2026)
+    private void headAxisY()
+    {
+        mouseY = Input.GetAxis("Mouse Y") * sensitivity;
+    }
+
+    //update horizontal rotation
+    private void headAxisX()
+    {
+        mouseX = Input.GetAxis("Mouse X") * sensitivity;
+    }
+    
     //update jump key for movement
     private void jumpKey()
     {
