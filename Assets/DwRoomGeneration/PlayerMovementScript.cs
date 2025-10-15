@@ -2,10 +2,29 @@ using UnityEngine;
 
 public class PlayerMovementScript : MonoBehaviour
 {
-    private int horizontal;
-    private int vertical;
+    [Header("Inputs")]
+    public int horizontal;
+    public int vertical;
     private bool sprinting;
     private bool jumping;
+
+
+    [Header("InputKey")]
+    private KeyCode RightKey = KeyCode.D;
+    private KeyCode LeftKey = KeyCode.A;
+    private KeyCode ForwardKey = KeyCode.W;
+    private KeyCode BackwardKey = KeyCode.S;
+    private KeyCode SprintKey = KeyCode.LeftShift;
+    private KeyCode JumpKey = KeyCode.Space;
+
+
+    [Header("Movement")]
+    [SerializeField] private float baseSpeed = 8;
+    private Vector3 moveDirection = Vector3.zero;
+
+
+
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -16,46 +35,101 @@ public class PlayerMovementScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        updateInput();
+        updateMovementInput();
+        movement();
+    }
+
+    private void LateUpdate()
+    {
+        
     }
 
 
+
+
+    //Functions ==============================================================
+
     //this function is for checking input
-    private void updateInput()
+    private void updateMovementInput()
     {
-        horizontal = mathRoofing(Input.GetAxis("Horizontal"));
-        vertical = mathRoofing(Input.GetAxis("Vertical"));
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            sprinting = true;
-        }
-        else
-        {
-            sprinting= false;
-        }
-        if (Input.GetKeyDown(KeyCode.Space)) //will require cooldown in movement function
+        horizontalKey();
+        verticalKey();
+        sprintKey();
+        jumpKey();
+    }
+
+    //function for translating input into movement
+    private void movement()
+    {
+        moveDirection.z = vertical;
+        moveDirection.x = horizontal;
+        moveDirection.y = 0;
+        this.transform.Translate(moveDirection * Time.deltaTime);
+    }
+
+
+
+
+    //Keys ===================================================================
+
+    //update jump key for movement
+    private void jumpKey()
+    {
+        if (Input.GetKeyDown(JumpKey))
         {
             jumping = true;
         }
-        else
+        else if (Input.GetKeyUp(JumpKey))
         {
             jumping = false;
         }
     }
 
-    private int mathRoofing(float f)
+    //update sprint key for movement
+    private void sprintKey()
     {
-        if (f > 0)
+        if (Input.GetKeyDown(SprintKey))
         {
-            return 1;
+            sprinting = true;
         }
-        else if (f<0)
+        else if (Input.GetKeyUp(SprintKey))
         {
-            return -1;
+            sprinting = false;
         }
-        else
+    }
+
+    //update horizontal key for movement
+    private void horizontalKey()
+    {
+        if (Input.GetKeyDown(RightKey))
         {
-            return 0;
+            horizontal = 1;
+        }
+        else if (Input.GetKeyDown(LeftKey))
+        {
+            horizontal = -1;
+        }
+        else if (Input.GetKeyUp(RightKey) || Input.GetKeyUp(LeftKey))
+        {
+            horizontal = 0;
+        }
+    }
+
+
+    //update vertical key for movement
+    private void verticalKey()
+    {
+        if (Input.GetKeyDown(ForwardKey))
+        {
+            vertical = 1;
+        }
+        else if (Input.GetKeyDown(BackwardKey))
+        {
+            vertical = -1;
+        }
+        else if (Input.GetKeyUp(ForwardKey) || Input.GetKeyUp(BackwardKey))
+        {
+            vertical = 0;
         }
     }
 }
