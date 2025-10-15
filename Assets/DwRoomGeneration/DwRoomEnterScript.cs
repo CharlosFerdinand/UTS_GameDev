@@ -32,6 +32,7 @@ public class DwRoomEnterScript : MonoBehaviour
     private void updateHandler()
     {
         RoomHandler.notifyHandler(this.gameObject);//notify room handler from this object
-        Destroy(this.gameObject);
+        //deactivate trigger, Room handler will handle the deletion of Room
+        this.gameObject.SetActive(false);
     }
 }

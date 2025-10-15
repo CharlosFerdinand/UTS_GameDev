@@ -48,6 +48,19 @@ public class DwRoomHandlerScript : MonoBehaviour
             );
         listRooms.Add(generatedRoom);
 
+        //Sealing Furthest door
+        if (srcIndex == 3) //if source came from Fourth of the list
+        {
+            //seal the entrance of third of the list because
+            //first of the list will be destroyed. also from second of the
+            //list, player can see possible destroyed object, which is why
+            //i chose to delete third of the list
+            GameObject seal = listRooms[2].transform.GetChild(0).gameObject; //get EnterBox
+            seal.GetComponent<BoxCollider>().isTrigger = false; //remove triggreable-lity
+            //since trigger is false, this is basically a wall.
+            seal.SetActive(true); //reactivate it
+        }
+
         //destroy further than 2 rooms away
         if (listRooms.Count > maxRoom)
         {
