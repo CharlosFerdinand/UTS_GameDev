@@ -13,8 +13,8 @@ public class DwPlayerMovementScript : MonoBehaviour
         Falling
     }
 
-    [Header("Inputs")]
-    [SerializeField] private float sensitivity = 225; //mouse sensitivity degree per second
+    [Header("Inputs (play fullscreen for precise sensitivity)")]
+    [SerializeField] private float sensitivity = 2f; //mouse sensitivity degree per update frame
     private int horizontal; //right/left
     private int vertical; //forward/backward
     private float mouseX; //mouse x move
@@ -52,7 +52,7 @@ public class DwPlayerMovementScript : MonoBehaviour
 
     [Header("Gravity")]
     [SerializeField] private float playerGravity = 9.81f;
-    [SerializeField] private float gravityMultiplier = 1f;
+    [SerializeField] private float gravityAdditionalMultiplier = 1f;
 
 
     [Header("Camera")]
@@ -64,6 +64,9 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private LayerMask layer; //at what layer the line is drawn (Just like picture editing tools layering)
     public float maxSlopeDegree = 36.87f; //max acceptable slope
     private RaycastHit slopeHit;
+
+    [Header("Collision Raycast")] //to make sure that you dont stick to platform like a spider.
+    private RaycastHit directionHit;
 
 
     [Header("ReadOnly Rb Velocity")]
@@ -115,7 +118,6 @@ public class DwPlayerMovementScript : MonoBehaviour
         horizontalKey();
         verticalKey();
         jumpKey();
-        //getGround();
         slopeGroundCheck();
     } //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -166,7 +168,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         else //when player is mid air, apply gravity
         {
-            moveDirection.y = -playerGravity * gravityMultiplier;
+            moveDirection.y = -playerGravity * gravityAdditionalMultiplier;
         }
 
         //add horizontal movement
@@ -194,8 +196,8 @@ public class DwPlayerMovementScript : MonoBehaviour
     private void rotatePlayer() //rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     {
         //rotation
-        this.transform.Rotate(Vector3.up * mouseX * Time.deltaTime); //rotate on y axis
-        cameraX -= mouseY * Time.deltaTime;
+        this.transform.Rotate(Vector3.up * mouseX); //rotate on y axis
+        cameraX -= mouseY;
         cameraX = Mathf.Clamp(cameraX, -89f, 89f); //ensures the camera does not over rotate
         mainCamera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
     }//rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

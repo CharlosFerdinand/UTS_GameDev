@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class DwRoomEnterScript : MonoBehaviour
 {
-    private DwRoomHandlerScript RoomHandler;
     public Transform exitRoom;
+    private DwRoomHandlerScript RoomHandler;
+    private bool triggered = false;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -22,8 +23,9 @@ public class DwRoomEnterScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "hero")
+        if (other.gameObject.tag == "hero" && !triggered)
         {
+            triggered = true;
             //instantiate next room at "ExitRoom"
             updateHandler();
         }

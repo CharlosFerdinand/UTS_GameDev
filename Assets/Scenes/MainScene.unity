@@ -750,7 +750,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc8d5fbe2128e324a84f7c2dda00b54b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sensitivity: 225
+  sensitivity: 2
   isGrounded: 0
   walkSpeed: 5
   sprintSpeed: 10
@@ -763,11 +763,18 @@ MonoBehaviour:
   centerToFeet: 0
   jumpStrength: 10
   playerGravity: 9.81
-  gravityMultiplier: 1
+  gravityAdditionalMultiplier: 0.5
   layer:
     serializedVersion: 2
     m_Bits: 183
   maxSlopeDegree: 36.87
+  xVelocity: 0
+  yVelocity: 0
+  zVelocity: 0
+  debugXDirection: 0
+  debugYDirection: 0
+  debugZDirection: 0
+  debugSpeed: 0
 --- !u!135 &797777979
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1728,7 +1735,7 @@ Transform:
   m_GameObject: {fileID: 1586216679}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.532, y: 0.3, z: 6}
+  m_LocalPosition: {x: -7.545, y: 0.3, z: 6}
   m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
