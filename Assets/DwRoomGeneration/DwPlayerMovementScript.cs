@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 //i wanna add momentum when jumping, ill have to change the way speed work later
@@ -19,7 +20,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private int vertical; //forward/backward
     private float mouseX; //mouse x move
     private float mouseY; //mouse y move
-    private bool isGrounded = true;
+    public bool isGrounded = true;
 
 
     [Header("InputKey")]
@@ -31,33 +32,27 @@ public class DwPlayerMovementScript : MonoBehaviour
     private KeyCode JumpKey = KeyCode.Space;
 
 
-    [Header("Movement")]
-    [SerializeField] private float airSpeed = 6f;
+    [Header("PlayerCharacter")]
     [SerializeField] private float walkSpeed = 12f;
     [SerializeField] private float sprintSpeed = 18f;
-    [SerializeField] private float airDegrade = 0.2f; //[range of 0-1]the rate at which horizontal speed degrade by it's length when exceeding airSpeed. took a long time to build the code for it.
-    private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
+    [SerializeField] private float feetToGround; //offset for ground checking
+    [SerializeField] private float groundDrag; //for rigidbody
+    public float playerHeight;
+    public float centerToFeet; //usually half of player's height
     private float baseSpeed; //after applying state
     private float speed; //total speed (if in the future we want to add item)
-    public Vector3 moveDirection = Vector3.zero; //current character velocity gained by movement()
+    public PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
+    public Vector3 moveDirection = Vector3.zero; //movement Direction in the world.
     private Rigidbody rb;
     
 
     [Header("Movement:Jump")]
-    [SerializeField] private float jumpDuration = 0.15f; //duration of the jump (the longer you hold the jump key, the higher the jump)
     [SerializeField] private float jumpStrength = 13f; //upward speed/second
-    [SerializeField] private float jumpMaxCooldown = 0.5f; //wait time until jump is ready
-    private float jumpTimer = 0f; //while it's 0, no jump
-    private float jumpCooldown = 0f; //0 or lower means it's ready to jump
     private bool isJumping = false;
-    private bool jumped = false;
 
     [Header("Gravity")]
-    [SerializeField] private float playerGravity = 9.81f; //this is m/s^2
+    [SerializeField] private float playerGravity = 9.81f;
     [SerializeField] private float gravityMultiplier = 1f;
-    [SerializeField] private float multiplierDuration = 0.5f;
-    private float multiplierTimer = 0f;
-    //player gravity will continuously reduce moveDirection
 
 
     [Header("Camera")]
@@ -84,10 +79,11 @@ public class DwPlayerMovementScript : MonoBehaviour
     void Update()
     {
         updateMovementInput();
-        applyState();
+        updateCharacter();
+        handleState();
     }
 
-    private void LateUpdate() //is basically the collider physics frame (50fps)
+    private void FixedUpdate() //is basically the collider physics frame (50fps)
     {
         movement();
     }
@@ -98,7 +94,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //Functions ==============================================================
 
     //this function is for checking input
-    private void updateMovementInput() //Checks for input - - - - - - - - - -
+    private void updateMovementInput() //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     { //called once per Update()
         headAxisX();
         headAxisY();
@@ -106,201 +102,93 @@ public class DwPlayerMovementScript : MonoBehaviour
         verticalKey();
         jumpKey();
         getGround();
-    }
+    } //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     //function that checks and apply player state
-    private void applyState()
+    private void handleState()
     { //called once per Update()
-        //check state
-        stateCheck();
-
-        //apply
-        if (playerState == PlayerState.Falling)
+        if (isGrounded)
         {
-            baseSpeed = airSpeed; //speed when player is on air
+            if (Input.GetKey(SprintKey))
+            {
+                playerState = PlayerState.Sprinting;
+                baseSpeed = sprintSpeed;
+            }
+            else
+            {
+                playerState = PlayerState.Walking;
+                baseSpeed = walkSpeed;
+            }
         }
-        else if (playerState == PlayerState.Walking)
+        else if (!isGrounded) //when player is not touching the ground
         {
-            baseSpeed = walkSpeed;
-        }
-        else if (playerState == PlayerState.Sprinting)
-        {
-            baseSpeed = sprintSpeed;
+            playerState = PlayerState.Falling;
         }
     }
 
     //function for translating input into movement. will be called on physics frame
-    private void movement() //moves and rotates the character - - - - - - - -
+    private void movement() //moves and rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     {
         //apply speed
         speed = baseSpeed; //baseSpeed was affected by playerState
+        moveDirection = Vector3.zero;
+
+        //apply drag
+        if (isGrounded)
+        {
+            rb.linearDamping = groundDrag;
+        }
+        else
+        { //when on air, you dont take drag
+            rb.linearDamping = 0.5f;
+        }
 
         //gravity
-        if (isGrounded) //when player is on ground
+        if (isGrounded) //when player is on ground, dont apply gravity, instead apply current velocity
         {
             moveDirection.y = 0;
         }
-        else //when player is mid air
-        {//apply velocity reduction per second (reducing m/s on each second)
-            moveDirection.y -= playerGravity * Time.deltaTime * spedUpFall();
+        else //when player is mid air, apply gravity
+        {
+            //moveDirection.y = -playerGravity * gravityMultiplier;
         }
 
         //normalize input
-        float normalH = normalizeVelocityAxis(horizontal, vertical);
-        float normalV = normalizeVelocityAxis(vertical, horizontal);
+        moveDirection += (transform.forward*vertical + transform.right * horizontal).normalized * speed;
+        
+        jumpCheck();
 
-        //horizontal velocity on ground
-        if (isGrounded)
-        {
-            moveDirection.x = normalH * speed;
-            moveDirection.z = normalV * speed;
-        }
-        else //horizontal velocity on air
-        {
-            if (
-                Mathf.Sqrt(
-                    moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z
-                    ) > airSpeed
-                )
-            {//if length is longer than airSpeed, degrade length of horizontal vector by 0.3
-                float normalX = normalizeVelocityAxis(moveDirection.x, moveDirection.z);
-                float normalZ = normalizeVelocityAxis(moveDirection.z, moveDirection.x);
-                float lengthXZ = Mathf.Sqrt(moveDirection.x * moveDirection.x + moveDirection.z * moveDirection.z);
-                moveDirection.x -= Time.deltaTime * normalX * airDegrade; //speed degradation when on air.
-                moveDirection.z -= Time.deltaTime * normalZ * airDegrade; //meaning that some speed are kept.
-
-                //add air strafing when going upward
-                if (jumped)
-                {
-                    moveDirection.x += 2 * normalH * speed * Time.deltaTime;
-                    moveDirection.z += 2 * normalV * speed * Time.deltaTime;
-                }
-            }
-            else
-            {//strafe like falling
-                moveDirection.x = normalH * speed;
-                moveDirection.z = normalV * speed;
-            }
-        }
-        jump();
-
-        //apply accelaration
-        rb.MovePosition(
-            Time.deltaTime * (
-            moveDirection.x * this.transform.right +
-            moveDirection.y * this.transform.up +
-            moveDirection.z * this.transform.forward
-            )
-            + this.transform.position
-            );
+        //apply movement
+        rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.VelocityChange);
 
         //rotation
         this.transform.Rotate(Vector3.up * mouseX * Time.deltaTime); //rotate on y axis
-        cameraLatRotation();
-    }
+        cameraX -= mouseY * Time.deltaTime;
+        cameraX = Mathf.Clamp(cameraX, -89f, 89f); //ensures the camera does not over rotate
+        mainCamera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
+    }//moves and rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 
-
-    //speed up fall after reaching peak of height (trick for a satisfying gravity effect learned from the dev of isadora edge in youtube short)
-    private float spedUpFall()
-    {
-        float multiplier = 1f;
-        if (jumped)
-        {
-            multiplierTimer = multiplierDuration;
-        }
-        else if(multiplierTimer > 0f)
-        {
-            multiplierTimer -= Time.deltaTime;
-            multiplier = gravityMultiplier;
-        }
-        return multiplier;
-    }
-
-    //normalize velocity on certain axis
-    private float normalizeVelocityAxis(float main, float other)
-    {
-        float result = 0f;
-        //using x^2 + y^2 = length as basis for normalization
-        float sum = Mathf.Sqrt((main*main) + (other*other));
-        if (sum == 0)
-        {
-            result = 0f;
-        }
-        else
-        {
-            result = main / sum;
-        }
-        return result;
-    }
 
     //jumping
-    private void jump() //add jump force to rigidbody
+    private void jumpCheck() //add jump force to rigidbody
     {
-        float value = 0;
-        //timer
-        if (jumpCooldown > 0f)
-        {
-            jumpCooldown -= Time.deltaTime;
-        }
-        if(jumpTimer > 0f)
-        {
-            jumpTimer -= Time.deltaTime;
-        }
-
         //process input
         if (isJumping && isGrounded)
         {
-            jumped = true;
+            rb.AddForce(jumpStrength * Vector3.up, ForceMode.Impulse);
         }
-        else if (jumped && !isJumping) //if they stop jumping, jumped stop
-        {
-            jumped = false;
-        }
-
-        //when jump happened
-        if (jumped)
-        {
-            //initial, set cooldown and duration
-            if (isGrounded && jumpTimer <= 0f && jumpCooldown <= 0f)
-            {
-                jumpTimer = jumpDuration;
-                jumpCooldown = jumpMaxCooldown;
-                value += jumpStrength;
-            }
-            else if(jumpTimer > 0f) //in jump duration
-            {
-                value += jumpStrength;
-            }
-            else
-            {
-                jumped = false;
-            }
-        }
-        rb.AddForce(Vector3.up * value, ForceMode.Impulse);
     }
-
-    //set the camera latitude according to it's current latitude
-    private void cameraLatRotation()
-    {
-        cameraX -= mouseY * Time.deltaTime;
-        cameraX = Mathf.Clamp(cameraX, -88f, 88f); //ensures the camera does not over rotate
-        mainCamera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
-    }
-
 
     //ground Checking
     private void getGround()
     {
         RaycastHit hit;
         Ray ray = new Ray(this.transform.position, -Vector3.up);
-        if (Physics.Raycast(ray, out hit, 1.05f, layer))
+        if (Physics.Raycast(ray, out hit, centerToFeet+feetToGround, layer))
         {
-            if (Vector3.Distance(this.transform.position,hit.point) > groundFootingRange)
-            {
-                isGrounded = true;
-            }
+            isGrounded = true;
         }
         else
         {
@@ -322,6 +210,13 @@ public class DwPlayerMovementScript : MonoBehaviour
             }
         }
         return isRoofed;
+    }
+
+    //gets the height of character based on renderer and update the "center to feet" distance
+    private void updateCharacter()
+    {
+        playerHeight = this.gameObject.GetComponent<Renderer>().bounds.size.y; //get player height
+        centerToFeet = playerHeight / 2;
     }
 
 
@@ -381,32 +276,6 @@ public class DwPlayerMovementScript : MonoBehaviour
         if (Input.GetKey(BackwardKey))
         {
             vertical += -1;
-        }
-    }
-
-
-
-
-    //State Check ============================================================
-    
-    //check state
-    private void stateCheck()
-    {
-        //when player is touching ground
-        if (isGrounded)
-        {
-            if (Input.GetKey(SprintKey))
-            {
-                playerState = PlayerState.Sprinting;
-            }
-            else
-            {
-                playerState = PlayerState.Walking;
-            }
-        }
-        else if (!isGrounded) //when player is not touching the ground
-        {
-            playerState = PlayerState.Falling;
         }
     }
 }
