@@ -5153,7 +5153,7 @@ GameObject:
   - component: {fileID: 8015591935351500527}
   m_Layer: 0
   m_Name: Floor
-  m_TagString: Untagged
+  m_TagString: groundTag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6375,7 +6375,7 @@ GameObject:
   - component: {fileID: 7652976641163716199}
   m_Layer: 0
   m_Name: Floor (2)
-  m_TagString: Untagged
+  m_TagString: groundTag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9917,6 +9917,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: b31c62c35ced11c4383176ecffe930c9, type: 3}
       propertyPath: m_Name
       value: Floor (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: b31c62c35ced11c4383176ecffe930c9, type: 3}
+      propertyPath: m_TagString
+      value: groundTag
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: b31c62c35ced11c4383176ecffe930c9, type: 3}
       propertyPath: m_LocalScale.x

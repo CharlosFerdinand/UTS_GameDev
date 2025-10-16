@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 //i wanna add momentum when jumping, ill have to change the way speed work later
@@ -20,7 +19,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private int vertical; //forward/backward
     private float mouseX; //mouse x move
     private float mouseY; //mouse y move
-    public bool isGrounded = true;
+    private bool isGrounded = false;
 
 
     [Header("InputKey")]
@@ -37,12 +36,13 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private float sprintSpeed = 18f;
     [SerializeField] private float feetToGround; //offset for ground checking
     [SerializeField] private float groundDrag; //for rigidbody
-    public float playerHeight;
-    public float centerToFeet; //usually half of player's height
+    [SerializeField] private LayerMask groundLayer;
+    private float playerHeight;
+    private float centerToFeet; //usually half of player's height
     private float baseSpeed; //after applying state
     private float speed; //total speed (if in the future we want to add item)
-    public PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
-    public Vector3 moveDirection = Vector3.zero; //movement Direction in the world.
+    private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
+    private Vector3 moveDirection = Vector3.zero; //movement Direction in the world.
     private Rigidbody rb;
     
 
@@ -60,7 +60,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private float cameraX = 0; //latitude way of change (like when you nod your head), store camera.rotation.x (aka rotation on x axis or kinda like the magnetic flow of wire)
 
 
-    [Header("Raycast")]
+    [Header("Raycast")] //will be usefull for slope detection
     [SerializeField] private LayerMask layer; //at what layer the line is drawn (Just like picture editing tools layering)
     private float groundFootingRange = 0.52f; //the highest point on body when collision still counts
 
@@ -81,6 +81,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         updateMovementInput();
         updateCharacter();
         handleState();
+        rotatePlayer();
     }
 
     private void FixedUpdate() //is basically the collider physics frame (50fps)
@@ -101,7 +102,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         horizontalKey();
         verticalKey();
         jumpKey();
-        getGround();
+        //getGround();
     } //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     //function that checks and apply player state
@@ -127,10 +128,11 @@ public class DwPlayerMovementScript : MonoBehaviour
     }
 
     //function for translating input into movement. will be called on physics frame
-    private void movement() //moves and rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    private void movement() //moves the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     {
         //apply speed
         speed = baseSpeed; //baseSpeed was affected by playerState
+        speedLimit(); //this function make sure that character does not move more than the expected speed.
         moveDirection = Vector3.zero;
 
         //apply drag
@@ -140,7 +142,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         else
         { //when on air, you dont take drag
-            rb.linearDamping = 0.5f;
+            rb.linearDamping = 0.1f;
         }
 
         //gravity
@@ -150,24 +152,28 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         else //when player is mid air, apply gravity
         {
-            //moveDirection.y = -playerGravity * gravityMultiplier;
+            moveDirection.y = -playerGravity * gravityMultiplier;
         }
 
         //normalize input
-        moveDirection += (transform.forward*vertical + transform.right * horizontal).normalized * speed;
+        moveDirection += (transform.forward * vertical + transform.right * horizontal).normalized * speed;
         
         jumpCheck();
 
         //apply movement
         rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.VelocityChange);
+    }//moves the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
+    //rotates the character (called in update to give more responsiveness)
+    private void rotatePlayer() //rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    {
         //rotation
         this.transform.Rotate(Vector3.up * mouseX * Time.deltaTime); //rotate on y axis
         cameraX -= mouseY * Time.deltaTime;
         cameraX = Mathf.Clamp(cameraX, -89f, 89f); //ensures the camera does not over rotate
         mainCamera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
-    }//moves and rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+    }//rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 
@@ -181,35 +187,33 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
     }
 
-    //ground Checking
-    private void getGround()
+    //speed limiter
+    private void speedLimit()
     {
-        RaycastHit hit;
-        Ray ray = new Ray(this.transform.position, -Vector3.up);
-        if (Physics.Raycast(ray, out hit, centerToFeet+feetToGround, layer))
+        Vector3 flatVelocity = rb.linearVelocity.x * Vector3.right + rb.linearVelocity.z * Vector3.forward;
+        if (flatVelocity.magnitude > speed)
         {
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
+            float y = rb.linearVelocity.y;
+            Vector3 newVelocity = flatVelocity.normalized * speed;
+            newVelocity += Vector3.up * y;
+            rb.linearVelocity = newVelocity;
         }
     }
 
-    //roof Checking
-    private bool getRoofed()
+    //ground checking test
+    private void OnTriggerStay(Collider other)
     {
-        bool isRoofed = false;
-        RaycastHit hit;
-        Ray ray = new Ray(this.transform.position, Vector3.up);
-        if (Physics.Raycast(ray, out hit, 1.05f, layer))
+        if (other.gameObject.tag == "groundTag")
         {
-            if (Vector3.Distance(this.transform.position, hit.point) > groundFootingRange)
-            {
-                isRoofed = true;
-            }
+            isGrounded = true;
         }
-        return isRoofed;
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "groundTag")
+        {
+            isGrounded = false;
+        }
     }
 
     //gets the height of character based on renderer and update the "center to feet" distance
