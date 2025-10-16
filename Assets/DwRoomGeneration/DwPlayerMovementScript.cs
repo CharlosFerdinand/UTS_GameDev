@@ -19,7 +19,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private int vertical; //forward/backward
     private float mouseX; //mouse x move
     private float mouseY; //mouse y move
-    private bool isGrounded = false;
+    public bool isGrounded = false;
 
 
     [Header("InputKey")]
@@ -37,8 +37,8 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private float feetToGround; //offset for ground checking
     [SerializeField] private float groundDrag; //for rigidbody
     [SerializeField] private LayerMask groundLayer;
-    private float playerHeight;
-    private float centerToFeet; //usually half of player's height
+    public float playerHeight;
+    public float centerToFeet; //usually half of player's height
     private float baseSpeed; //after applying state
     private float speed; //total speed (if in the future we want to add item)
     private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
@@ -60,9 +60,10 @@ public class DwPlayerMovementScript : MonoBehaviour
     private float cameraX = 0; //latitude way of change (like when you nod your head), store camera.rotation.x (aka rotation on x axis or kinda like the magnetic flow of wire)
 
 
-    [Header("Raycast")] //will be usefull for slope detection
+    [Header("Slope Raycast")]
     [SerializeField] private LayerMask layer; //at what layer the line is drawn (Just like picture editing tools layering)
-    private float groundFootingRange = 0.52f; //the highest point on body when collision still counts
+    public float maxSlopeDegree = 36.87f; //max acceptable slope
+    private RaycastHit slopeHit;
 
 
 
@@ -87,6 +88,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private void FixedUpdate() //is basically the collider physics frame (50fps)
     {
         movement();
+        isGrounded = false;
     }
 
 
@@ -103,6 +105,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         verticalKey();
         jumpKey();
         //getGround();
+        slopeGroundCheck();
     } //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     //function that checks and apply player state
@@ -155,8 +158,19 @@ public class DwPlayerMovementScript : MonoBehaviour
             moveDirection.y = -playerGravity * gravityMultiplier;
         }
 
-        //normalize input
-        moveDirection += (transform.forward * vertical + transform.right * horizontal).normalized * speed;
+        //add horizontal movement
+        Vector3 horizontalMove = (transform.forward * vertical + transform.right * horizontal).normalized;
+        if (onSlope())
+        {//if player is on top of an acceptable slope (relevant degree an distance), apply slope movement
+            horizontalMove = getSlopeNormalizedMove(horizontalMove) * speed;
+        }
+        else //else, apply horizontal move normally
+        {
+            horizontalMove = horizontalMove * speed;
+        }
+
+        //apply the horizontal movement
+        moveDirection += horizontalMove;
         
         jumpCheck();
 
@@ -176,6 +190,67 @@ public class DwPlayerMovementScript : MonoBehaviour
     }//rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
+
+
+    //is grounded if slopeHit degree correlate with it's distance
+    private void slopeGroundCheck()
+    {
+        if (onSlope())
+        {
+            float dist = slopeHit.point.y - centerToFeet; //distance from feet to slope
+            //get other degree of slope
+            float otherDegree = 90f - Vector3.Angle(Vector3.up, slopeHit.normal);
+            //calculate max range for distance
+            float maxRadius = (playerHeight / 4f);
+            float radius = deg2X(otherDegree,maxRadius);
+            float distanceExtra = maxRadius / Mathf.Tan(otherDegree * Mathf.Deg2Rad);
+            float maxRange = distanceExtra - maxRadius + Mathf.Sqrt(maxRadius * maxRadius - radius * radius);
+            if (dist <= maxRange+0.02f && !isGrounded) //0.02f is just there for a margin of error
+            {
+                isGrounded = true;
+            }
+        }
+    }
+
+    //project the movement direction according to a plane based on hit.normal as upward direction of the plane. return normalized direction
+    private Vector3 getSlopeNormalizedMove(Vector3 moveDir)
+    {
+        return Vector3.ProjectOnPlane(moveDir, slopeHit.normal).normalized;
+    }
+
+    //slope check
+    private bool onSlope()
+    {
+        if (
+            Physics.Raycast(this.transform.position, Vector3.down,
+            out slopeHit,
+            centerToFeet + getSlopeDistance() + 0.02f, 
+            layer
+            )
+            ) //0.02f as offset
+        {
+            return Vector3.Angle(Vector3.up, slopeHit.normal) != 0f && Vector3.Angle(Vector3.up, slopeHit.normal) < maxSlopeDegree;
+        }
+        return false;
+    }
+
+    //y' = -x / (r^2 - x^2)^(1/2)
+    private float getSlopeDistance() //function for calculating distance
+    {
+        float maxRadius = playerHeight / 4;
+        float radius = maxRadius * 0.6f; //radius of feet.
+        float gradient = radius / Mathf.Sqrt(maxRadius * maxRadius - radius * radius); //this is the turunan of xkuadrat + ykuadrat equals to rkuadrat. but gradient will always be positive instead
+        float slopeDegree = Mathf.Atan(gradient) * Mathf.Rad2Deg; //should be roughly 36.87 degree if rounded up, i still have my paper when i was calculating it manually at home
+        float otherDegree = 90 - slopeDegree; //to get the degree of the other corner of my imaginary triangle
+        float distanceExtra = radius / Mathf.Tan(otherDegree * Mathf.Deg2Rad); //this is the distance with extra y1
+        float distance = distanceExtra - maxRadius + Mathf.Sqrt(maxRadius * maxRadius - radius * radius); //basically dikurangin maxRadius aka r lalu tambah y(radius) aka (r^2 - x^2)^(1/2)
+        return distance;
+    }
+
+    private float deg2X(float degree, float maxRadius)
+    {
+        return maxRadius * Mathf.Cos(degree * Mathf.Deg2Rad);
+    }
 
     //jumping
     private void jumpCheck() //add jump force to rigidbody
@@ -200,19 +275,12 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
     }
 
-    //ground checking test
+    //ground checking
     private void OnTriggerStay(Collider other)
     {
         if (other.gameObject.tag == "groundTag")
         {
             isGrounded = true;
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.tag == "groundTag")
-        {
-            isGrounded = false;
         }
     }
 
