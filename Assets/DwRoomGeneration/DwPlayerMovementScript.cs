@@ -66,6 +66,16 @@ public class DwPlayerMovementScript : MonoBehaviour
     private RaycastHit slopeHit;
 
 
+    [Header("ReadOnly Rb Velocity")]
+    public float xVelocity;
+    public float yVelocity;
+    public float zVelocity;
+    public float debugXDirection;
+    public float debugYDirection;
+    public float debugZDirection;
+    public float debugSpeed;
+
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -87,6 +97,7 @@ public class DwPlayerMovementScript : MonoBehaviour
 
     private void FixedUpdate() //is basically the collider physics frame (50fps)
     {
+        readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
         movement();
         isGrounded = false;
     }
@@ -145,7 +156,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         else
         { //when on air, you dont take drag
-            rb.linearDamping = 0.1f;
+            rb.linearDamping = 0f;
         }
 
         //gravity
@@ -349,5 +360,18 @@ public class DwPlayerMovementScript : MonoBehaviour
         {
             vertical += -1;
         }
+    }
+
+
+    //reading stats ======================================================================================================================================
+    private void readStats()
+    {
+        xVelocity = rb.linearVelocity.x;
+        yVelocity = rb.linearVelocity.y;
+        zVelocity = rb.linearVelocity.z;
+        debugXDirection = moveDirection.x;
+        debugYDirection = moveDirection.y;
+        debugZDirection = moveDirection.z;
+        debugSpeed = moveDirection.magnitude;
     }
 }
