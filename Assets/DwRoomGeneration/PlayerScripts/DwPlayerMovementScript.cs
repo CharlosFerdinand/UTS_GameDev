@@ -277,7 +277,7 @@ public class DwPlayerMovementScript : MonoBehaviour
             float radius = deg2X(otherDegree,maxRadius);
             float distanceExtra = maxRadius / Mathf.Tan(otherDegree * Mathf.Deg2Rad);
             float maxRange = distanceExtra - maxRadius + Mathf.Sqrt(maxRadius * maxRadius - radius * radius);
-            if (dist <= maxRange+0.02f && !isGrounded) //0.02f is just there for a margin of error
+            if (dist <= maxRange+0.14f && !isGrounded) //0.14f is error margin, 0.13f is the minimum for non slope to give grounded
             {
                 isGrounded = true;
             }
@@ -301,7 +301,7 @@ public class DwPlayerMovementScript : MonoBehaviour
             )
             ) //0.02f as offset
         {
-            return Vector3.Angle(Vector3.up, slopeHit.normal) != 0f && Vector3.Angle(Vector3.up, slopeHit.normal) < maxSlopeDegree;
+            return Vector3.Angle(Vector3.up, slopeHit.normal) < maxSlopeDegree && slopeHit.collider.gameObject.tag != "groundTag";
         }
         return false;
     }
@@ -431,6 +431,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private void writeStats()
     {
         uiDebugText.text = "Debug\n" +
+            "isGrounded: " + isGrounded + "\n" +
             "Speed: " + debugSpeed + "\n\n" +
             "X Velocity: " + xVelocity + "\n" +
             "Y Velocity: " + yVelocity + "\n" +
