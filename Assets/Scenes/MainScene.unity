@@ -745,7 +745,7 @@ Transform:
   m_GameObject: {fileID: 302088653}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -13, y: 0, z: 0}
+  m_LocalPosition: {x: -12, y: 3.5, z: -1}
   m_LocalScale: {x: 3, y: 0.25, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1468,10 +1468,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sensitivity: 2
   walkSpeed: 5
-  sprintSpeed: 10
+  sprintSpeed: 8
   feetToGround: 0.3
   groundDrag: 5
-  jumpStrength: 10
+  jumpStrength: 8
   playerGravity: 9.81
   gravityAdditionalMultiplier: 0.5
   layer:
@@ -2737,7 +2737,7 @@ Transform:
   m_GameObject: {fileID: 1550036188}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -13, y: 0, z: -6}
+  m_LocalPosition: {x: -12, y: 2, z: -1}
   m_LocalScale: {x: 3, y: 0.25, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
