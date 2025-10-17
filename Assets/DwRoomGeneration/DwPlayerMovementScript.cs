@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Xml;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 //i wanna add momentum when jumping, ill have to change the way speed work later
 
@@ -19,7 +22,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private int vertical; //forward/backward
     private float mouseX; //mouse x move
     private float mouseY; //mouse y move
-    public bool isGrounded = false;
+    private bool isGrounded = false;
 
 
     [Header("InputKey")]
@@ -36,11 +39,15 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private float sprintSpeed = 18f;
     [SerializeField] private float feetToGround; //offset for ground checking
     [SerializeField] private float groundDrag; //for rigidbody
-    [SerializeField] private LayerMask groundLayer;
-    public float playerHeight;
-    public float centerToFeet; //usually half of player's height
+    
+    //stats
+    private float playerHeight;
+    private float centerToFeet; //usually half of player's height
     private float baseSpeed; //after applying state
     private float speed; //total speed (if in the future we want to add item)
+    private bool isAlive = true;
+
+    //action
     private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
     private Vector3 moveDirection = Vector3.zero; //movement Direction in the world.
     private Rigidbody rb;
@@ -62,10 +69,10 @@ public class DwPlayerMovementScript : MonoBehaviour
 
     [Header("Slope Raycast")]
     [SerializeField] private LayerMask layer; //at what layer the line is drawn (Just like picture editing tools layering)
-    public float maxSlopeDegree = 36.87f; //max acceptable slope
+    private float maxSlopeDegree = 36.87f; //max acceptable slope
     private RaycastHit slopeHit;
 
-    [Header("Collision Raycast")] //to make sure that you dont stick to platform like a spider.
+    [Header("Collision Raycast")] //to make sure that you dont stick to platform like a spider, has yet to be implemented
     private RaycastHit directionHit;
 
 
@@ -78,9 +85,13 @@ public class DwPlayerMovementScript : MonoBehaviour
     public float debugZDirection;
     public float debugSpeed;
 
+    [Header("UI")]
+    public TMP_Text uiDebugText;
 
 
 
+
+    //Game Lifecycle =======================================================================================================================================
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -101,14 +112,19 @@ public class DwPlayerMovementScript : MonoBehaviour
     private void FixedUpdate() //is basically the collider physics frame (50fps)
     {
         readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
-        movement();
+        writeStats();
+        //movement is only applied when player is still alive.
+        if (isAlive)
+        {
+            movement();
+        }
         isGrounded = false;
     }
 
 
 
 
-    //Functions ==============================================================
+    //Functions ============================================================================================================================
 
     //this function is for checking input
     private void updateMovementInput() //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -204,6 +220,15 @@ public class DwPlayerMovementScript : MonoBehaviour
 
 
 
+
+    //function for settin live status, called by DwPlayerHpScript
+    public void setAlive(bool alive)
+    {
+        isAlive = alive;
+    }
+
+    //function for taking dmg
+    //private void 
 
     //is grounded if slopeHit degree correlate with it's distance
     private void slopeGroundCheck()
@@ -375,5 +400,18 @@ public class DwPlayerMovementScript : MonoBehaviour
         debugYDirection = moveDirection.y;
         debugZDirection = moveDirection.z;
         debugSpeed = moveDirection.magnitude;
+    }
+
+    //update the TMP_text
+    private void writeStats()
+    {
+        uiDebugText.text = "Debug\n" +
+            "Speed: " + debugSpeed + "\n\n" +
+            "X Velocity: " + xVelocity + "\n" +
+            "Y Velocity: " + yVelocity + "\n" +
+            "Z Velocity: " + zVelocity + "\n\n" +
+            "X Direction: " + debugXDirection + "\n" +
+            "Y Direction: " + debugYDirection + "\n" +
+            "Z Direction: " + debugZDirection;
     }
 }
