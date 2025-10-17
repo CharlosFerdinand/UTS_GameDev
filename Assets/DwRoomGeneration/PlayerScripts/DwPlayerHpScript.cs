@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class DwPlayerHpScript : MonoBehaviour
+public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
 {
     [Header("Stats")]
     [SerializeField] private float startingMaxHp = 100f;
@@ -61,14 +61,9 @@ public class DwPlayerHpScript : MonoBehaviour
         hp = Mathf.Clamp(hp, -1, playerMaxHp); //heal cannot exceed max hp
     }
 
-
-
-    //hit by damagebox
-    private void OnCollisionEnter(Collision collision)
+    //take damage
+    public void takeDamage(float damage)
     {
-        if (collision.gameObject.tag == "damageBoxTag")
-        {
-            hp -= collision.gameObject.GetComponent<DwInterfaceDamageBox>().getDamage();
-        }
+        hp -= damage;
     }
 }

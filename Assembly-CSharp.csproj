@@ -61,7 +61,6 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.56f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\DwRoomGeneration\DwInterfaceDamageBox.cs" />
     <Compile Include="Assets\DwRoomGeneration\PlayerScripts\DwPlayerHpScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\SpikeTrapScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwRoomEnterScript.cs" />
@@ -71,6 +70,7 @@
     <Compile Include="Assets\NathanFolder\MainMenu.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\MovingPlatformScript.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\DwRoomGeneration\DwInterfaceDamageAble.cs" />
     <Compile Include="Assets\DwRoomGeneration\Material\NewMonoBehaviourScript.cs" />
   </ItemGroup>
   <ItemGroup>

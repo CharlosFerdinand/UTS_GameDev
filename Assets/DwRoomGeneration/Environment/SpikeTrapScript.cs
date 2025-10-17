@@ -2,11 +2,13 @@ using UnityEngine;
 
 public class SpikeTrapScript : MonoBehaviour
 {
-    public Transform spike; //im gonna use this to move the spike, y position will go up to 0.46 local if activated
-    public Vector3 rest; //position for spike to rest
-    public Vector3 attackPosition = Vector3.up * 0.46f; //position of spike when attacking in local position (0f,0.46f,0f)
-    public bool activate = false; //when its alive.
-    public bool sleep = true; //when it consume no computing power.
+    [Header("Spike Stats")]
+    [SerializeField] private float damage = 10f;
+    [SerializeField] private Vector3 attackPosition = Vector3.up * 0.46f; //position of spike when attacking in local position (0f,0.46f,0f)
+    private Vector3 rest; //position for spike to rest
+    private bool activate = false; //when its alive.
+    private bool sleep = true; //when it consume no computing power.
+    private Transform spike; //im gonna use this to move the spike, y position will go up to 0.46 local if activated
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -35,6 +37,7 @@ public class SpikeTrapScript : MonoBehaviour
     }
 
 
+    //activation
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.tag == "hero")
@@ -49,11 +52,18 @@ public class SpikeTrapScript : MonoBehaviour
         Vector3 distance = targetPos - spike.localPosition;
         if (distance.magnitude >= 0.05f) //if distance length is not close
         {
-            Debug.Log("moving");
             distance = distance * Time.deltaTime * 8; //within 0/8 second, will reach distance
             spike.localPosition = distance + spike.localPosition;
             return false;
         }
         return true;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "hero" && other.gameObject.GetComponent<DwInterfaceDamageAble>() != null)
+        {
+            other.gameObject.GetComponent<DwInterfaceDamageAble>().takeDamage(damage);
+        }
     }
 }
