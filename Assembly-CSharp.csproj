@@ -62,12 +62,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\DwRoomGeneration\DwInterfaceDamageBox.cs" />
-    <Compile Include="Assets\DwRoomGeneration\DwPlayerMovementScript.cs" />
+    <Compile Include="Assets\DwRoomGeneration\PlayerScripts\DwPlayerHpScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwRoomEnterScript.cs" />
-    <Compile Include="Assets\DwRoomGeneration\DwPlayerHpScript.cs" />
+    <Compile Include="Assets\DwRoomGeneration\PlayerScripts\DwPlayerMovementScript.cs" />
     <Compile Include="Assets\CharacterMovement.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwRoomHandlerScript.cs" />
     <Compile Include="Assets\NathanFolder\MainMenu.cs" />
+    <Compile Include="Assets\DwRoomGeneration\Environment\MovingPlatformScript.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1087,6 +1088,10 @@
       <Project>{C41D6407-DA27-EEAA-11ED-4FFA30E6AA5A}</Project>
       <Name>Unity.AI.Navigation</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Recorder.csproj">
+      <Project>{C3B796BD-6F82-3335-67B1-B1B310B29775}</Project>
+      <Name>Unity.Recorder</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.RenderPipeline.Universal.ShaderLibrary.csproj">
       <Project>{95A8EC90-AD6B-E7BC-6177-222BF29BDDB5}</Project>
       <Name>Unity.RenderPipeline.Universal.ShaderLibrary</Name>
@@ -1139,6 +1144,10 @@
       <Project>{F8128469-CC5B-F061-8092-562EA0E112F4}</Project>
       <Name>Unity.RenderPipelines.GPUDriven.Runtime</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Bindings.OpenImageIO.Editor.csproj">
+      <Project>{06106EC3-C9D1-BE32-7293-5C1634900151}</Project>
+      <Name>Unity.Bindings.OpenImageIO.Editor</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.Collections.csproj">
       <Project>{4BE4BEFE-5C25-5128-BEC1-119D63749C78}</Project>
       <Name>Unity.Collections</Name>
@@ -1146,6 +1155,10 @@
     <ProjectReference Include="PPv2URPConverters.csproj">
       <Project>{46D79CB0-F473-AA8E-8E10-EC6673AC414F}</Project>
       <Name>PPv2URPConverters</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Recorder.Base.csproj">
+      <Project>{6C7AE4E3-D653-FCAA-F0C6-0CA4FB2B0DBB}</Project>
+      <Name>Unity.Recorder.Base</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Rendering.LightTransport.Editor.csproj">
       <Project>{65861F82-82CC-119A-1166-44033AFE6912}</Project>
@@ -1227,13 +1240,17 @@
       <Project>{A46FF7C2-7627-D822-D6A0-AC895C6F9A7A}</Project>
       <Name>Unity.AI.Navigation.Editor.ConversionSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
-      <Project>{9F27D703-66B6-9E5D-950D-CA7346D29819}</Project>
-      <Name>Unity.TextMeshPro.Editor</Name>
+    <ProjectReference Include="Unity.Recorder.Editor.csproj">
+      <Project>{64F013C9-D2D5-CA2C-5650-240F8E1C920F}</Project>
+      <Name>Unity.Recorder.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Burst.Editor.csproj">
       <Project>{B25234FC-CE24-A149-1F0F-7893EB78170F}</Project>
       <Name>Unity.Burst.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
+      <Project>{9F27D703-66B6-9E5D-950D-CA7346D29819}</Project>
+      <Name>Unity.TextMeshPro.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Burst.csproj">
       <Project>{8BCF6F06-F4DB-23A7-8AD8-D6614D1E79FE}</Project>
