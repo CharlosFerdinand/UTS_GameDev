@@ -10130,7 +10130,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9019336697445359480, guid: a131761682ad7cc46800f0f755ba95c0, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9051848310517496576, guid: a131761682ad7cc46800f0f755ba95c0, type: 3}
       propertyPath: gracePeriod

@@ -129,6 +129,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         onRigidGround = false;
     }
 
+    //taking in velocity
     private void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.tag == "groundTag")
@@ -235,6 +236,9 @@ public class DwPlayerMovementScript : MonoBehaviour
 
         //apply movement
         rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.VelocityChange);
+
+        //if is not grounded but y velocity is almost 0 yet moveDirection indicates gravity appliance, then forcefully drag them downward to prevent wall sticking
+        wallStickFix();
     }//moves the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
@@ -253,6 +257,137 @@ public class DwPlayerMovementScript : MonoBehaviour
 
 
 
+
+    //function to fix wall stick bug if it happened, must test: [using only y as a mean of detecting bug instead of using magnitude]
+    private void wallStickFix()
+    {
+        /*
+        //my solution number 2.
+        if (
+            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
+            rb.linearVelocity.magnitude < 0.1f &&
+            !isGrounded
+            )
+        { //if moveDirection(x and z). magnitude is more than 0, yet velocity.magnitude is almost zero, and is not grounded. then forcefully drag it downward with transform.Translate() instead of rigidBody.
+            this.transform.Translate(Vector3.up * moveDirection.y * Time.fixedDeltaTime);
+        }
+        //result: it kinda works, but using Time.fixedDeltaTime on transform.Translate might have caused some tearing in movement (not smooth), some test is needed in order to look further as to why this happen.
+        //for now im gonna test my first solution
+        //after testing first solution with Mathf.Abs(), tearing happened, even after changing it to Time.deltaTime. meaning that it might be because im running transform.Translate() in FixedUpdate().
+        //now, im planning to instead manipulate velocity.y directly through linearVelocity.y
+        */
+        /*
+        //my solution number 1 (my first solution)
+        if (
+            moveDirection.y > 0.1f &&
+            rb.linearVelocity.y < 0.1f &&
+            !isGrounded
+            ) //if gravity is supposed to be applied, 
+        {
+            this.transform.Translate(Vector3.up * moveDirection.y * Time.fixedDeltaTime); //to see if it is the fixedDeltaTime (since fixedDeltaTime meant for rb)
+        }
+        */
+        //i just realized it but, i forgot to use Mathf.Abs().
+        /*
+        if (
+            Mathf.Abs(moveDirection.y) > 0.1f &&
+            Mathf.Abs(rb.linearVelocity.y) < 0.1f &&
+            !isGrounded
+            ) //if gravity is supposed to be applied, 
+        {
+            this.transform.Translate(Vector3.up * moveDirection.y * Time.deltaTime); //to see if it is the fixedDeltaTime (since fixedDeltaTime meant for rb)
+        }
+        */
+        //adding y moveDirection to y velocity is not effective, since it will slow down from time to time, resulting in downward movement by 1 step per second in a burst of speed
+        /*
+        if (
+            Mathf.Abs(moveDirection.y) > 0.1f &&
+            Mathf.Abs(rb.linearVelocity.y) < 0.1f &&
+            !isGrounded
+            ) //if gravity is supposed to be applied, 
+        {
+            rb.linearVelocity = moveDirection.y * Vector3.up + Vector3.right * rb.linearVelocity.x + Vector3.forward * rb.linearVelocity.z; //if i y velocity directly...
+        }
+        //result show that the same still happen, so maybe its best to just change x and z to 0 when wall stick gets detected.
+        //or maybe its because everytime it gets fixed, the next frame, velocity changed because current frame change the velocity...
+        //then i might have to run the wall stick fix in a different frame.
+        */
+        /*
+        if (
+            Mathf.Abs(moveDirection.y) > 0.1f &&
+            Mathf.Abs(rb.linearVelocity.y) < 0.1f &&
+            !isGrounded
+            ) //if gravity is supposed to be applied, 
+        {
+           rb.AddForce(moveDirection.y * Vector3.up, ForceMode.Impulse); //removing everything but y
+        }
+        //still a failure, maybe i should just use raycast. maybe a raycast that aims upward.
+        //im gonna try using raycast this time, as for how:
+        //im gonna raycast from near the feet of the character, then after getting raycast as true, if toward the move direction, there is something...
+        //wait, maybe i need to make sure that i dont apply force when potential wallstick is about to happen...
+        //just now im testing random method and im starting to feel nauseous from trying to keep track of methods. now i cannot keep track anymore. right now i felt like i can puke on command. my body felt like gagging just now.
+        //this time im not sure if it's because im nauseaous, but im very sure of my next method. use collision, then if move direction is roughly moving toward that direction, dont apply horizontal force. nvm that, that only means that they will still add force when no collision is detected yet, we cannot add offset since it might prevent collision from happening in the first place.
+
+        //what if we can just realign move
+        */
+        // im just gonna make do as intended now.
+        /*
+        if (
+            Mathf.Abs(moveDirection.y) > 0.1f &&
+            Mathf.Abs(rb.linearVelocity.y) < 0.1f &&
+            !isGrounded
+            ) //if gravity is supposed to be applied, 
+        {
+            rb.linearVelocity += Vector3.up * moveDirection.y * Time.fixedDeltaTime; //apply continuous downward gravity
+        }
+        //fail
+        */
+        /*
+        if (
+            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
+            (rb.linearVelocity.z * Vector3.forward + rb.linearVelocity.x * Vector3.right).magnitude < 0.1f &&
+            !isGrounded
+            )
+        { //if moveDirection(x and z). magnitude is more than 0, yet velocity.magnitude is almost zero, and is not grounded. then forcefully drag it downward with transform.Translate() instead of rigidBody.
+            rb.linearVelocity = moveDirection.y * Vector3.up + Vector3.right * rb.linearVelocity.x + Vector3.forward * rb.linearVelocity.z;
+        }
+        //this time its more promisingm lets try using rb.linearVelocity.y this time...
+        */
+        /*
+        if (
+            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
+            (rb.linearVelocity.z * Vector3.forward + rb.linearVelocity.x * Vector3.right).magnitude < 0.1f &&
+            !isGrounded
+            )
+        { 
+            rb.linearVelocity = rb.linearVelocity.y * Vector3.up + Vector3.right * rb.linearVelocity.x + Vector3.forward * rb.linearVelocity.z;
+        }
+        //i see, now i got reminded that the source of problem is rb.linearVelocity being almost 0.
+        //but this is still promising
+        //fail 1, 2, 3, 4, 5, 6
+        */
+        /*
+        if (
+            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
+            (rb.linearVelocity.z * Vector3.forward + rb.linearVelocity.x * Vector3.right).magnitude < 0.1f &&
+            !isGrounded
+            )
+        {
+            rb.linearVelocity = rb.linearVelocity.y * Vector3.up;
+            rb.AddForce(playerGravity * Vector3.up * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        }
+        //fail, this is all i can for now (removing wall sticking) since im very much tired after working for 69.5 hours since monday to now (saturday this hour). but i do believe it can still be refined.
+        */
+        if (
+            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
+            (rb.linearVelocity.z * Vector3.forward + rb.linearVelocity.x * Vector3.right).magnitude < 0.1f &&
+            !isGrounded
+            )
+        {
+            rb.linearVelocity = moveDirection.y * Vector3.up + Vector3.right * rb.linearVelocity.x + Vector3.forward * rb.linearVelocity.z;
+        }
+        //tho on the brighter side of things, no more wall sticking.
+    }
 
     //function for setting velocity of the ground
     private Vector3 getGroundVelocity()
