@@ -7359,6 +7359,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Fog
       objectReference: {fileID: 0}
+    - target: {fileID: 9051848310517496576, guid: a131761682ad7cc46800f0f755ba95c0, type: 3}
+      propertyPath: gracePeriod
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8956,9 +8960,9 @@ SceneRoots:
   - {fileID: 40652228}
   - {fileID: 1777221400}
   - {fileID: 225667255}
+  - {fileID: 6453548519950432685}
   - {fileID: 797777976}
   - {fileID: 1354124682}
   - {fileID: 8879260100769966268}
   - {fileID: 2061024913544625712}
   - {fileID: 7512254362532337390}
-  - {fileID: 6453548519950432685}
