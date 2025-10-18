@@ -1,19 +1,24 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class DwRoomHandlerScript : MonoBehaviour
 {
     //developer included attribute
     [SerializeField] List<GameObject> roomVariation;
+    [SerializeField] TMP_Text scoreAmount;
 
     //RoomHandler Self attribute (no need to change unless you want to change how this script works)
     private int roomVariaty = 1; //how many room variety exist (prefab)
     private int maxRoom = 5;
     private List<GameObject> listRooms = new List<GameObject>();
+    private int score;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        score = 0;
         roomVariaty = roomVariation.Count;
         listRooms.Add(GameObject.Find("Starting Room 1"));
         listRooms.Add(GameObject.Find("DwRoom1"));
@@ -67,6 +72,20 @@ public class DwRoomHandlerScript : MonoBehaviour
             GameObject room = listRooms[0];
             listRooms.RemoveAt(0);
             Destroy(room);
+        }
+
+        //add score and display it
+        score += 1;
+        if (scoreAmount != null)
+        {
+            if (score > 99999)
+            {
+                scoreAmount.text = "+99999";
+            }
+            else
+            {
+                scoreAmount.text = score.ToString();
+            }
         }
     }
 }

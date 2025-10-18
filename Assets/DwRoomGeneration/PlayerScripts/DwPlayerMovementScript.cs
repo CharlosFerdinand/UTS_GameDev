@@ -425,7 +425,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //update the TMP_text
     private void writeStats()
     {
-        uiDebugText.text = "Debug\n" +
+        uiDebugText.text = "Stat\n" +
             "isGrounded: " + isGrounded + "\n" +
             "Speed: " + debugSpeed + "\n\n" +
             "X Velocity: " + xVelocity + "\n" +

@@ -33,6 +33,7 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
         if (hp<=0)
         {
             isAlive = false;
+            Time.timeScale = 0f; //stop time
         }
         //apply regen while alive
         else
