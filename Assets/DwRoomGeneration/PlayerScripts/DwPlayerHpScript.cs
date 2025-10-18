@@ -23,6 +23,7 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     void Start()
     {
         deathScreen.SetActive(false); //hide death screen in case of accidentally activating it on the editor.
+        Cursor.lockState = CursorLockMode.Locked;
         playerMaxHp = startingMaxHp; //set max hp
         hp = playerMaxHp; //apply health
     }
@@ -30,12 +31,13 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     // Update is called once per frame
     void Update()
     {
-        //notify live status if dead
+        //change status to "the heavy is DEAD!"
         if (hp<=0)
         {
             isAlive = false;
-            deathScreen.SetActive(true); //show death screen
             Time.timeScale = 0f; //stop time
+            deathScreen.SetActive(true); //show death screen
+            Cursor.lockState = CursorLockMode.None; //release mouse lock
         }
         //apply regen while alive
         else

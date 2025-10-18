@@ -3,6 +3,11 @@ using UnityEngine.SceneManagement;
 
 public class DwButtonHandler : MonoBehaviour
 {
+    public void continueBtn()
+    {
+        Time.timeScale = 1f; //continue the time
+    }
+
     public void playAgain()
     {
         SceneManager.LoadScene("MainScene");

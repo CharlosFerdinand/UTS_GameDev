@@ -35,6 +35,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private KeyCode BackwardKey = KeyCode.S;
     private KeyCode SprintKey = KeyCode.LeftShift;
     private KeyCode JumpKey = KeyCode.Space;
+    private KeyCode PauseKey = KeyCode.Escape; //to pause
 
 
     [Header("PlayerCharacter")]
@@ -89,6 +90,7 @@ public class DwPlayerMovementScript : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private TMP_Text uiDebugText;
+    [SerializeField] private GameObject uiPauseScreen; //looking at how i name the variable, i think i need a rule for naming, such as preffix, main, suffix.
 
 
 
@@ -97,10 +99,12 @@ public class DwPlayerMovementScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        uiPauseScreen.SetActive(false); //just in case that in editor, uiPauseScreen was set to active, deactivate it.
         mainCamera = this.transform.GetChild(0).gameObject; //get first child, must be main camera
         rb = this.GetComponent<Rigidbody>();
         hpScript = this.GetComponent<DwPlayerHpScript>();
         speed = baseSpeed;
+        Time.timeScale = 1f; //ensures that start of the game time always move.
     }
 
     // Update is called once per frame
@@ -154,6 +158,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //this function is for checking input
     private void updateMovementInput() //Checks for input - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     { //called once per Update()
+        pauseKey();
         headAxisX();
         headAxisY();
         horizontalKey();
@@ -353,6 +358,38 @@ public class DwPlayerMovementScript : MonoBehaviour
 
 
     //Keys ===================================================================
+
+    //update pause key, will pause upon activation
+    private void pauseKey()
+    {
+        if (Input.GetKeyDown(PauseKey))
+        {
+            if (hpScript.isAlive)
+            {
+                //toggle pause
+                if (Time.timeScale > 0f)
+                {
+                    Time.timeScale = 0f;
+                }
+                else
+                {
+                    Time.timeScale = 1f;
+                }
+
+                if (Time.timeScale == 0)
+                { //pause the game
+                    uiPauseScreen.SetActive(true); //show screen
+                    Cursor.lockState = CursorLockMode.None; //unlock mouse
+                }
+            }
+        }
+
+        if (Time.timeScale > 0f)
+        { //unpause the game
+            uiPauseScreen.SetActive(false); //close screen
+            Cursor.lockState = CursorLockMode.Locked; //lock mouse
+        }
+    }
 
     //update jump key, affects isJumping (as in intention wise)
     private void jumpKey()

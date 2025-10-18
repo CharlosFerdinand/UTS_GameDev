@@ -19,6 +19,8 @@ public class DwRoomHandlerScript : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMP_Text scoreAmount;
     [SerializeField] private TMP_Text scoreResult;
+    [SerializeField] private TMP_Text scoreCurrently;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -85,11 +87,13 @@ public class DwRoomHandlerScript : MonoBehaviour
         {
             scoreAmount.text = "+99999";
             scoreResult.text = "Room +99999";
+            scoreCurrently.text = "Room +99999";
         }
         else
         {
             scoreAmount.text = score.ToString();
             scoreResult.text = "Room " + score.ToString();
+            scoreCurrently.text = "Room " + score.ToString();
         }
     }
 }
