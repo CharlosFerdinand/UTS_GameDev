@@ -241,11 +241,14 @@ public class DwPlayerMovementScript : MonoBehaviour
     //rotates the character (called in update to give more responsiveness)
     private void rotatePlayer() //rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     {
-        //rotation
-        this.transform.Rotate(Vector3.up * mouseX); //rotate on y axis
-        cameraX -= mouseY;
-        cameraX = Mathf.Clamp(cameraX, -89f, 89f); //ensures the camera does not over rotate
-        mainCamera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
+        if (Time.timeScale > 0) //rotate only when not paused
+        {
+            //rotation
+            this.transform.Rotate(Vector3.up * mouseX); //rotate on y axis
+            cameraX -= mouseY;
+            cameraX = Mathf.Clamp(cameraX, -89f, 89f); //ensures the camera does not over rotate
+            mainCamera.transform.localRotation = Quaternion.Euler(Vector3.right * cameraX); //rotate on x axis
+        }
     }//rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
