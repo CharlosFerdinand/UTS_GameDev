@@ -17,6 +17,7 @@ public class DwButtonHandler : MonoBehaviour
     public void returnToMainMenu()
     {
         SceneManager.LoadScene("MainMenu");
+        Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 1f;
     }
 }
