@@ -88,7 +88,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     public float debugSpeed;
 
     [Header("UI")]
-    public TMP_Text uiDebugText;
+    [SerializeField] private TMP_Text uiDebugText;
 
 
 
@@ -117,7 +117,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
         writeStats();
         //movement is only applied when player is still alive.
-        if (hpScript.isAlive)
+        if (hpScript.isAlive && Time.timeScale > 0f) //only run if player is alive and time is moving
         {
             movement();
         }

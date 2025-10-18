@@ -69,6 +69,7 @@
     <Compile Include="Assets\DwRoomGeneration\DwRoomHandlerScript.cs" />
     <Compile Include="Assets\NathanFolder\MainMenu.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\MovingPlatformScript.cs" />
+    <Compile Include="Assets\DwRoomGeneration\UI\DwButtonHandler.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\Fog\FogScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwInterfaceDamageAble.cs" />

@@ -6,14 +6,19 @@ using TMPro;
 public class DwRoomHandlerScript : MonoBehaviour
 {
     //developer included attribute
+    [Header("List of Variety")]
     [SerializeField] List<GameObject> roomVariation;
-    [SerializeField] TMP_Text scoreAmount;
 
     //RoomHandler Self attribute (no need to change unless you want to change how this script works)
     private int roomVariaty = 1; //how many room variety exist (prefab)
     private int maxRoom = 5;
     private List<GameObject> listRooms = new List<GameObject>();
     private int score;
+
+
+    [Header("UI")]
+    [SerializeField] private TMP_Text scoreAmount;
+    [SerializeField] private TMP_Text scoreResult;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -76,16 +81,15 @@ public class DwRoomHandlerScript : MonoBehaviour
 
         //add score and display it
         score += 1;
-        if (scoreAmount != null)
+        if (score > 99999)
         {
-            if (score > 99999)
-            {
-                scoreAmount.text = "+99999";
-            }
-            else
-            {
-                scoreAmount.text = score.ToString();
-            }
+            scoreAmount.text = "+99999";
+            scoreResult.text = "Room +99999";
+        }
+        else
+        {
+            scoreAmount.text = score.ToString();
+            scoreResult.text = "Room " + score.ToString();
         }
     }
 }

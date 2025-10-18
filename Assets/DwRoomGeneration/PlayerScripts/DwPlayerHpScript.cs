@@ -12,16 +12,17 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     private float hp;
     private float regenTimer;
 
-    private DwPlayerMovementScript pMovementScript;
 
     [Header("UI")]
-    public TMP_Text uiHpText;
-    public Slider uiHpBar;
+    [SerializeField] private TMP_Text uiHpText;
+    [SerializeField] private Slider uiHpBar;
+    [SerializeField] private GameObject deathScreen;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        deathScreen.SetActive(false); //hide death screen in case of accidentally activating it on the editor.
         playerMaxHp = startingMaxHp; //set max hp
         hp = playerMaxHp; //apply health
     }
@@ -33,6 +34,7 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
         if (hp<=0)
         {
             isAlive = false;
+            deathScreen.SetActive(true); //show death screen
             Time.timeScale = 0f; //stop time
         }
         //apply regen while alive
