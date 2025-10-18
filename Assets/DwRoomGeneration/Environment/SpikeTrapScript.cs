@@ -52,7 +52,7 @@ public class SpikeTrapScript : MonoBehaviour
         Vector3 distance = targetPos - spike.localPosition;
         if (distance.magnitude >= 0.05f) //if distance length is not close
         {
-            distance = distance * Time.deltaTime * 8; //within 0/8 second, will reach distance
+            distance = distance * Time.fixedDeltaTime * 8; //within 0/8 second, will reach distance
             spike.localPosition = distance + spike.localPosition;
             return false;
         }
