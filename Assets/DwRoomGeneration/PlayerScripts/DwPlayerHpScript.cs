@@ -7,6 +7,7 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     [Header("Stats")]
     [SerializeField] private float startingMaxHp = 100f;
     [SerializeField] private float regen = 1;
+    public bool isAlive = true;
     private float playerMaxHp;
     private float hp;
     private float regenTimer;
@@ -23,7 +24,6 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     {
         playerMaxHp = startingMaxHp; //set max hp
         hp = playerMaxHp; //apply health
-        pMovementScript = GetComponent<DwPlayerMovementScript>();
     }
 
     // Update is called once per frame
@@ -32,7 +32,7 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
         //notify live status if dead
         if (hp<=0)
         {
-            pMovementScript.setAlive(false);
+            isAlive = false;
         }
         //apply regen while alive
         else

@@ -25,6 +25,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private bool isGrounded = false;
     private bool onRigidGround = false;
     private Vector3 groundVelocity;
+    private DwPlayerHpScript hpScript;
 
 
     [Header("InputKey")]
@@ -47,7 +48,6 @@ public class DwPlayerMovementScript : MonoBehaviour
     private float centerToFeet; //usually half of player's height
     private float baseSpeed; //after applying state
     private float speed; //total speed (if in the future we want to add item)
-    private bool isAlive = true;
 
     //action
     private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
@@ -99,6 +99,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     {
         mainCamera = this.transform.GetChild(0).gameObject; //get first child, must be main camera
         rb = this.GetComponent<Rigidbody>();
+        hpScript = this.GetComponent<DwPlayerHpScript>();
         speed = baseSpeed;
     }
 
@@ -116,7 +117,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
         writeStats();
         //movement is only applied when player is still alive.
-        if (isAlive)
+        if (hpScript.isAlive)
         {
             movement();
         }
@@ -253,12 +254,6 @@ public class DwPlayerMovementScript : MonoBehaviour
             return groundVelocity;
         }
         return Vector3.zero;
-    }
-
-    //function for settin live status, called by DwPlayerHpScript
-    public void setAlive(bool alive)
-    {
-        isAlive = alive;
     }
 
     //function for taking dmg
