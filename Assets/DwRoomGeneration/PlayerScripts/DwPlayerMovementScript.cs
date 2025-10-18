@@ -58,6 +58,8 @@ public class DwPlayerMovementScript : MonoBehaviour
 
     [Header("Movement:Jump")]
     [SerializeField] private float jumpStrength = 13f; //upward speed/second
+    [SerializeField] private float jumpCooldown = 0.3f; //cooldown of jump
+    private float jumpTimer = 0f; //timer
     private bool isJumping = false;
 
     [Header("Gravity")]
@@ -466,9 +468,14 @@ public class DwPlayerMovementScript : MonoBehaviour
     private void jumpCheck() //add jump force to rigidbody
     {
         //process input
-        if (isJumping && isGrounded)
+        if (isJumping && isGrounded && jumpTimer <= 0f)
         {
+            jumpTimer = jumpCooldown;
             rb.AddForce(jumpStrength * Vector3.up, ForceMode.Impulse);
+        }
+        else
+        {
+            jumpTimer -= Time.fixedDeltaTime;
         }
     }
 

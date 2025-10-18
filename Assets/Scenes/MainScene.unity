@@ -2368,7 +2368,8 @@ MonoBehaviour:
   sprintSpeed: 8
   feetToGround: 0.3
   groundDrag: 5
-  jumpStrength: 8
+  jumpStrength: 16
+  jumpCooldown: 0.3
   playerGravity: 9.81
   gravityAdditionalMultiplier: 0.5
   layer:
@@ -10135,6 +10136,10 @@ PrefabInstance:
     - target: {fileID: 9051848310517496576, guid: a131761682ad7cc46800f0f755ba95c0, type: 3}
       propertyPath: gracePeriod
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 9051848310517496576, guid: a131761682ad7cc46800f0f755ba95c0, type: 3}
+      propertyPath: interpolationRate
+      value: 0.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
