@@ -42,6 +42,7 @@ public class MovingPlatformScript : MonoBehaviour
             }
             else
             {
+                rb.linearVelocity = Vector3.zero;
                 index += 1;
                 if (index >= pathPoints.Count)
                 {//loop
