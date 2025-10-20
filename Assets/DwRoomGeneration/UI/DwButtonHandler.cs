@@ -10,14 +10,15 @@ public class DwButtonHandler : MonoBehaviour
 
     public void playAgain()
     {
-        SceneManager.LoadScene("MainScene");
         Time.timeScale = 1f;
+        SceneManager.LoadScene("MainScene");
     }
 
     public void returnToMainMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
+        SceneManager.LoadScene("MainMenu");
         Time.timeScale = 1f;
     }
 }
