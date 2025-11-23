@@ -10,10 +10,14 @@ public class DwRoomHandlerScript : MonoBehaviour
     [SerializeField] List<GameObject> roomVariation;
 
     //RoomHandler Self attribute (no need to change unless you want to change how this script works)
-    private int roomVariaty = 1; //how many room variety exist (prefab)
+    private int roomVariaty; //how many room variety exist (prefab)
     private int maxRoom = 5;
     private List<GameObject> listRooms = new List<GameObject>();
     private int score;
+
+    //Notify fog pathing
+    [Header("Fog Pathing")]
+    public FogScript fog;
 
 
     [Header("UI")]
@@ -27,9 +31,13 @@ public class DwRoomHandlerScript : MonoBehaviour
     {
         score = 0;
         roomVariaty = roomVariation.Count;
+
+        //add starting room and their FogPath to fog.addPath()
         listRooms.Add(GameObject.Find("Starting Room 1"));
         listRooms.Add(GameObject.Find("DwRoom1"));
+        fog.addPath(GameObject.Find("DwRoom1").transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
         listRooms.Add(GameObject.Find("DwRoom2"));
+        fog.addPath(GameObject.Find("DwRoom2").transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
     }
 
 
@@ -59,6 +67,8 @@ public class DwRoomHandlerScript : MonoBehaviour
             target.rotation
             );
         listRooms.Add(generatedRoom);
+        //add their FogPath to fog.addPath()
+        fog.addPath(generatedRoom.transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
 
         //Sealing Furthest door
         if (srcIndex == 3) //if source came from Fourth of the list
