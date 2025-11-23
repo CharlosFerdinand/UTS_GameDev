@@ -14,8 +14,8 @@ public class Movement_Testing : MonoBehaviour
     private float walkSpeed = 4f;
     private float sprintSpeed = 6f;
     private float speed = 0f;
-    private float jumpStrength = 1.6f;
-    private float gravityMultiplier = 1f;
+    private float jumpStrength = 1.2f;
+    private float gravityMultiplier = 4f;
 
     //stuff for floating rigidbody
     private float rideHeight = 0.95f; //distance to ground
@@ -63,6 +63,11 @@ public class Movement_Testing : MonoBehaviour
         Debug.DrawRay(ray.origin, ray.direction);
         if (Physics.Raycast(ray, out hit, rayLength, 1 << 7))
         {
+            if (!ground)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
             standing(hit);
             ground = true;
         }
@@ -70,6 +75,7 @@ public class Movement_Testing : MonoBehaviour
         {
             ground = false;
             springStrength = 100f;
+            dampenerStrength = 20f;
         }
 
         movement();
@@ -111,12 +117,15 @@ public class Movement_Testing : MonoBehaviour
             jumpTrigger = false;
             //disable spring temporarily (the one in standing())
             springStrength = 0;
+            dampenerStrength = 0;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
             Vector3 jumpDir = new Vector3(0, jumpStrength, 0);
             rb.AddForce(jumpDir, ForceMode.Impulse);
         }
 
         //vertical accel
-        if(rb.linearVelocity.y != 0)
+        if(rb.linearVelocity.y > 0.01 || rb.linearVelocity.y < -0.01)
         {
             rb.AddForce(new Vector3(0, Mathf.Sign(rb.linearVelocity.y) * gravityMultiplier, 0), ForceMode.Acceleration);
         }
