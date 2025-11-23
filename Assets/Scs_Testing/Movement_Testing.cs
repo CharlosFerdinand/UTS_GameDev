@@ -15,16 +15,13 @@ public class Movement_Testing : MonoBehaviour
     private float sprintSpeed = 6f;
     private float speed = 0f;
     private float jumpStrength = 1.6f;
-
-    //stuff for ground check
-    
+    private float gravityMultiplier = 1f;
 
     //stuff for floating rigidbody
     private float rideHeight = 0.95f; //distance to ground
     private float springStrength = 100f; //push/pull strength for locking in place like a spring
     private float dampenerStrength = 20f; //spring dampener, makes spring lose speed each iteration/bounce
     
-
     //stuff for camera movement
     private Transform cam;
     public float sensitivity = 2f;
@@ -46,7 +43,7 @@ public class Movement_Testing : MonoBehaviour
     void Update()
     {
         //Input (since it only work in update)
-        jumpTrigger = Input.GetKeyDown(KeyCode.Space);
+        jumpTrigger = Input.GetKeyDown(KeyCode.Space) && !jumpTrigger ? true:jumpTrigger;
         sprintTrigger = Input.GetKey(KeyCode.LeftShift);
 
         //camera and rotation
@@ -116,6 +113,12 @@ public class Movement_Testing : MonoBehaviour
             springStrength = 0;
             Vector3 jumpDir = new Vector3(0, jumpStrength, 0);
             rb.AddForce(jumpDir, ForceMode.Impulse);
+        }
+
+        //vertical accel
+        if(rb.linearVelocity.y != 0)
+        {
+            rb.AddForce(new Vector3(0, Mathf.Sign(rb.linearVelocity.y) * gravityMultiplier, 0), ForceMode.Acceleration);
         }
     }
 }
