@@ -3,18 +3,8 @@ using UnityEngine;
 
 public class Movement_Testing : MonoBehaviour
 {
-    public enum State
-    {
-        MOBILE,
-        IMMOBILE,
-        RECOVERY
-    }
-
     //states
-    public State state = State.MOBILE;
     private bool ground = false;
-    private float immobilize_time = 0.5f; //time before actually able to move again
-    private float immobilize_duration; //counter
 
     //Inputs
     private bool jumpTrigger = false;
@@ -22,7 +12,7 @@ public class Movement_Testing : MonoBehaviour
 
     //stuff for movement
     private float walkSpeed = 4f;
-    private float sprintSpeed = 8f;
+    private float sprintSpeed = 6f;
     private float speed = 0f;
     private float jumpStrength = 1.6f;
 
@@ -70,17 +60,12 @@ public class Movement_Testing : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //Raycast and standing
+        //Raycast, standing, ground checking
         Ray ray = new Ray(transform.position, -transform.up);
         RaycastHit hit;
         Debug.DrawRay(ray.origin, ray.direction);
         if (Physics.Raycast(ray, out hit, rayLength, 1 << 7))
         {
-            if (hit.distance < 0.3f && state == State.MOBILE)
-            {
-                state = State.IMMOBILE;
-                immobilize_duration = immobilize_time;
-            }
             standing(hit);
             ground = true;
         }
@@ -90,8 +75,22 @@ public class Movement_Testing : MonoBehaviour
             springStrength = 100f;
         }
 
+        movement();
+    }
 
-        //movement
+
+    //to make the body stay on standing level
+    void standing(RaycastHit hit)
+    {
+        float x = hit.distance - rideHeight;
+        float springforce = x * springStrength;
+        float dampforce = rb.linearVelocity.y * dampenerStrength;
+
+        rb.AddForce(Vector3.down * springforce + Vector3.down * dampforce);
+    }
+
+    void movement()
+    {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
@@ -108,46 +107,15 @@ public class Movement_Testing : MonoBehaviour
         Vector3 movedir = (transform.right * h + transform.forward * v) * speed;
         Vector3 current_vel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         Vector3 change_vel = movedir - current_vel;
-        
-        if(state == State.MOBILE)
-        {
-            rb.AddForce(change_vel, ForceMode.VelocityChange);
-            if (jumpTrigger && ground)
-            {
-                jumpTrigger = false;
-                //disable spring temporarily (the one in standing())
-                springStrength = 0;
-                Vector3 jumpDir = new Vector3(0, jumpStrength, 0);
-                rb.AddForce(jumpDir, ForceMode.Impulse);
-            }
-        }
-    }
 
-
-    //to make the body stay on standing level
-    void standing(RaycastHit hit)
-    {
-        float x = hit.distance - rideHeight;
-        float springforce = x * springStrength;
-        float dampforce = rb.linearVelocity.y * dampenerStrength;
-
-        
-        
-        if(state != State.IMMOBILE)
+        rb.AddForce(change_vel, ForceMode.VelocityChange);
+        if (jumpTrigger && ground)
         {
-            rb.AddForce(Vector3.down * springforce + Vector3.down * dampforce);
-            if(state == State.RECOVERY && Mathf.Abs(Vector3.Distance(hit.point, this.transform.position) - rideHeight) < 0.1f)
-            {
-                state = State.MOBILE;
-            }
-        }
-        else
-        {
-            immobilize_duration -= Time.fixedDeltaTime;
-            if(immobilize_duration <= 0)
-            {
-                state = State.RECOVERY;
-            }
+            jumpTrigger = false;
+            //disable spring temporarily (the one in standing())
+            springStrength = 0;
+            Vector3 jumpDir = new Vector3(0, jumpStrength, 0);
+            rb.AddForce(jumpDir, ForceMode.Impulse);
         }
     }
 }
