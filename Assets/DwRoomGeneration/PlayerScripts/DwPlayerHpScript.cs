@@ -17,7 +17,11 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     [SerializeField] private TMP_Text uiHpText;
     [SerializeField] private Slider uiHpBar;
     [SerializeField] private GameObject deathScreen;
-    
+
+    [Header("ParticleEffect")]
+    public GameObject bloodEffect;
+    public GameObject coughBloodEffect;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -67,8 +71,22 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     }
 
     //take damage
-    public void takeDamage(float damage)
+    public void takeDamage(float damage, GameObject damageSource)
     {
         hp -= damage;
+        if (coughBloodEffect != null && damageSource.name == "Fog")
+        {
+            Instantiate(
+                coughBloodEffect,
+                this.transform.position,
+                Quaternion.Euler(
+                    -90,this.transform.rotation.y, this.transform.rotation.z
+                    )
+                ).transform.SetParent(this.transform);
+        }
+        else if (bloodEffect != null)
+        {
+            Instantiate(bloodEffect, this.transform.position, Quaternion.identity).transform.SetParent(this.transform);
+        }
     }
 }

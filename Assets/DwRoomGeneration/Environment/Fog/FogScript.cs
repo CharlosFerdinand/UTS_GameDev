@@ -94,7 +94,7 @@ public class FogScript : MonoBehaviour
         { //deal damage and reset damageTimer
             if (other.GetComponent<DwInterfaceDamageAble>() != null) //check if interface exist
             {
-                other.GetComponent<DwInterfaceDamageAble>().takeDamage(damage);
+                other.GetComponent<DwInterfaceDamageAble>().takeDamage(damage, this.gameObject);
                 damageTimer = 1f / damageRate;
             }
         }

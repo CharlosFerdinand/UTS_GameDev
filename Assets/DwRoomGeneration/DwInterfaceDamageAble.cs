@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface DwInterfaceDamageAble
 {
-    public void takeDamage(float damage);
+    public void takeDamage(float damage, GameObject damageSource);
 }

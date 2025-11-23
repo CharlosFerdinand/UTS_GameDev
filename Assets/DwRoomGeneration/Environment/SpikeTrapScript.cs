@@ -63,7 +63,7 @@ public class SpikeTrapScript : MonoBehaviour
     {
         if (other.gameObject.tag == "hero" && other.gameObject.GetComponent<DwInterfaceDamageAble>() != null)
         {
-            other.gameObject.GetComponent<DwInterfaceDamageAble>().takeDamage(damage);
+            other.gameObject.GetComponent<DwInterfaceDamageAble>().takeDamage(damage, this.gameObject);
         }
     }
 }
