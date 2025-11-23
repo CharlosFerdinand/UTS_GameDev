@@ -10,21 +10,30 @@ public class Movement_Testing : MonoBehaviour
         RECOVERY
     }
 
-    //initial state
+    //states
     public State state = State.MOBILE;
+    private bool ground = false;
+    private float immobilize_time = 0.5f; //time before actually able to move again
+    private float immobilize_duration; //counter
+
+    //Inputs
+    private bool jumpTrigger = false;
+    private bool sprintTrigger = false;
 
     //stuff for movement
-    private bool jumpTrigger = false;
-    private float speed = 5f;
-    private bool ground = false;
+    private float walkSpeed = 4f;
+    private float sprintSpeed = 8f;
+    private float speed = 0f;
     private float jumpStrength = 1.6f;
 
-    //stuff for grounded
-    private float rideHeight = 0.95f;
-    private float springStrength = 100f;
-    private float dampenerStrength = 20f;
-    private float immobilize_time = 0.5f;
-    private float immobilize_duration;
+    //stuff for ground check
+    
+
+    //stuff for floating rigidbody
+    private float rideHeight = 0.95f; //distance to ground
+    private float springStrength = 100f; //push/pull strength for locking in place like a spring
+    private float dampenerStrength = 20f; //spring dampener, makes spring lose speed each iteration/bounce
+    
 
     //stuff for camera movement
     private Transform cam;
@@ -46,6 +55,10 @@ public class Movement_Testing : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Input (since it only work in update)
+        jumpTrigger = Input.GetKeyDown(KeyCode.Space);
+        sprintTrigger = Input.GetKey(KeyCode.LeftShift);
+
         //camera and rotation
         float mouseX = Input.GetAxis("Mouse X") * sensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * sensitivity;
@@ -53,9 +66,6 @@ public class Movement_Testing : MonoBehaviour
         this.transform.Rotate(new Vector3(0, mouseX, 0));
         cam.Rotate(new Vector3(-mouseY, 0, 0));
         cam.rotation = new Quaternion(Mathf.Clamp(cam.rotation.x, -89f, 89f), cam.rotation.y, cam.rotation.z, cam.rotation.w);
-
-        //Input (since it only work in update)
-        jumpTrigger = Input.GetKeyDown(KeyCode.Space);
     }
 
     private void FixedUpdate()
@@ -85,8 +95,17 @@ public class Movement_Testing : MonoBehaviour
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        Vector3 movedir = (transform.right * h + transform.forward * v) * speed;
+        if (sprintTrigger)
+        {
+            speed = sprintSpeed;
+        }
+        else
+        {
+            speed = walkSpeed;
+        }
 
+        //movement done using rigidbody addforce, velocity change mode
+        Vector3 movedir = (transform.right * h + transform.forward * v) * speed;
         Vector3 current_vel = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
         Vector3 change_vel = movedir - current_vel;
         
