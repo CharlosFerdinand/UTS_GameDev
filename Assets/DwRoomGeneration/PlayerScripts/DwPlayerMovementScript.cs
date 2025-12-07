@@ -269,9 +269,6 @@ public class DwPlayerMovementScript : MonoBehaviour
 
 
 
-
-<<<<<<< Updated upstream
-=======
     //function to fix wall stick bug if it happened, must test: [using only y as a mean of detecting bug instead of using magnitude]
     private void wallStickFix()
     {
@@ -285,7 +282,6 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         //tho on the brighter side of things, no more wall sticking.
     }
->>>>>>> Stashed changes
 
     //function for setting velocity of the ground
     private Vector3 getGroundVelocity()
