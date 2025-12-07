@@ -249,7 +249,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         jumpCheck();
 
         //apply movement
-        rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.Impulse);
 
     }//moves the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -270,6 +270,22 @@ public class DwPlayerMovementScript : MonoBehaviour
 
 
 
+<<<<<<< Updated upstream
+=======
+    //function to fix wall stick bug if it happened, must test: [using only y as a mean of detecting bug instead of using magnitude]
+    private void wallStickFix()
+    {
+        if (
+            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
+            (rb.linearVelocity.z * Vector3.forward + rb.linearVelocity.x * Vector3.right).magnitude < 0.1f &&
+            !isGrounded
+            )
+        {
+            rb.linearVelocity = moveDirection.y * Vector3.up + Vector3.right * rb.linearVelocity.x + Vector3.forward * rb.linearVelocity.z;
+        }
+        //tho on the brighter side of things, no more wall sticking.
+    }
+>>>>>>> Stashed changes
 
     //function for setting velocity of the ground
     private Vector3 getGroundVelocity()
