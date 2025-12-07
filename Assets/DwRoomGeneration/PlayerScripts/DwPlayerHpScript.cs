@@ -76,13 +76,13 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
         hp -= damage;
         if (coughBloodEffect != null && damageSource.name == "Fog")
         {
-            Instantiate(
+            GameObject blood = Instantiate(
                 coughBloodEffect,
                 this.transform.position,
-                Quaternion.Euler(
-                    -90,this.transform.rotation.y, this.transform.rotation.z
-                    )
-                ).transform.SetParent(this.transform);
+                Quaternion.identity
+                );
+            blood.transform.SetParent(this.transform);
+            blood.transform.localRotation = Quaternion.identity;
         }
         else if (bloodEffect != null)
         {

@@ -1,0 +1,137 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+//list of function that can be used to interact with ability:
+//public getName - get ability name in Ability enum type.
+//getBaseCooldown - get base cooldown
+//setCooldown - set this everytime you upgrade (if each upgrade decrease the cooldown)
+//getCooldown - return the cooldown for current level
+//setLevel - modify level
+//getLevel - get level
+//public getUpgradeCost - will return upgrade cost when not max level yet, otherwise return -1
+
+public class DwDash : DwAbility
+{
+    private bool isReady = true;
+    private bool isActive = false;
+    private float strength = 60f;
+    private float dashDuration = 0.15f;
+    private GameObject player;
+
+    private void Start()
+    {
+        player = GameObject.Find("Player");
+        List<int> upgradeCost = new List<int>();
+        upgradeCost.Add(0); //to lv 1
+        upgradeCost.Add(2); //to lv 2
+        upgradeCost.Add(4); //to lv 3
+        upgradeCost.Add(8); //to lv 4
+        upgradeCost.Add(16); //to lv 5
+
+        RegisterAbility(
+            Ability.Dash,
+            10f, //base cooldown
+            1f, //cooldown
+            1, //start level
+            upgradeCost //list of upgrade cost
+            );
+    }
+
+    private void FixedUpdate()
+    {
+        if (isActive)
+        {
+            player.GetComponent<Rigidbody>().AddRelativeForce(
+                Vector3.forward * strength, ForceMode.Impulse);
+        }
+    }
+
+
+    //ability
+    override public void ActivateAbility()
+    {
+        //only run ability effect when ability is ready
+        if (isReady)
+        {
+            isReady = false;
+            isActive = true;
+            StartCoroutine(DashFovCoroutine());
+            Invoke("dashFinish", dashDuration);
+            Invoke("cooldownFinish", getCooldown());
+        }
+    }
+
+    //upgrade the ability, called by the game manager.
+    override public void UpgradeAbility()
+    {
+        //set the level and then the cooldown
+        setLevel(getLevel() + 1);
+        switch (getLevel())
+        {
+            case 1:
+                setCooldown(getBaseCooldown());
+                strength = 60f; break;
+            case 2:
+                setCooldown(getBaseCooldown());
+                strength = 37.5f; break;
+            case 3:
+                setCooldown(getBaseCooldown());
+                strength = 45f; break;
+            case 4:
+                setCooldown(getBaseCooldown());
+                strength = 52.5f; break;
+            case 5:
+                setCooldown(getBaseCooldown());
+                strength = 60f; break;
+            default:
+                break;
+        }
+    }
+
+    private void cooldownFinish()
+    {
+        isReady = true;
+    }
+
+
+    private void dashFinish()
+    {
+        isActive = false;
+    }
+
+    //coroutine for setting up the fov while dashing
+    public IEnumerator DashFovCoroutine()
+    {
+        Camera cam = Camera.main;
+        float fov = cam.fieldOfView;
+        //increase fov for 30% of the dash duration
+        for (float i = 0; i < dashDuration * 0.3f; i += Time.deltaTime)
+        {
+            cam.fieldOfView = Mathf.Clamp(
+                fov - (0.20f * fov * i / (dashDuration * 0.3f)),
+                0.8f * fov,
+                fov
+                );
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+
+        //fov stays for 40% of the dash duration
+        yield return new WaitForSeconds(dashDuration * 0.4f);
+
+        //decrease fov for 30% of the dash duration
+        for (float i = 0; i < dashDuration * 0.3f; i += Time.deltaTime)
+        {
+            cam.fieldOfView = Mathf.Clamp(
+                fov + (0.20f * fov * i / (dashDuration * 0.3f)),
+                0.8f * fov,
+                fov
+                );
+            yield return new WaitForSeconds(Time.deltaTime);
+        }
+
+        //snap back to normal
+        cam.fieldOfView = fov;
+    }
+}
