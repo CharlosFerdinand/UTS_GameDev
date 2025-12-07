@@ -683,6 +683,7 @@ MonoBehaviour:
   roomVariation:
   - {fileID: 9131059551863244230, guid: 35bd600d820bb794085b6d566760efe6, type: 3}
   - {fileID: 3833718523227598422, guid: 0018a2233583a1c4389a2a8a361e5ab0, type: 3}
+  - {fileID: 4976621800739207362, guid: 056b1dd8b99783343ad31765e9dc7714, type: 3}
   fog: {fileID: 7710990163408504202}
   scoreAmount: {fileID: 764051436}
   scoreResult: {fileID: 1925207121}

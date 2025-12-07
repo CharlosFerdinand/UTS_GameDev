@@ -7,7 +7,7 @@ public class DwRoomHandlerScript : MonoBehaviour
 {
     //developer included attribute
     [Header("List of Variety")]
-    [SerializeField] List<GameObject> roomVariation;
+    [SerializeField] List<GameObject> roomVariation;//store unique prefab of room
 
     //RoomHandler Self attribute (no need to change unless you want to change how this script works)
     private int roomVariaty; //how many room variety exist (prefab)
