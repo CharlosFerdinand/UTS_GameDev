@@ -16,13 +16,15 @@ public class DwDash : DwAbility
 {
     private bool isReady = true;
     private bool isActive = false;
-    private float strength = 60f;
+    private float strength = 30f;
     private float dashDuration = 0.15f;
-    private GameObject player;
+    private DwGameManager gameManager;
 
     private void Start()
     {
-        player = GameObject.Find("Player");
+        //initialize game manager
+        gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
+
         List<int> upgradeCost = new List<int>();
         upgradeCost.Add(0); //to lv 1
         upgradeCost.Add(2); //to lv 2
@@ -33,7 +35,7 @@ public class DwDash : DwAbility
         RegisterAbility(
             Ability.Dash,
             10f, //base cooldown
-            1f, //cooldown
+            10f, //cooldown
             1, //start level
             upgradeCost //list of upgrade cost
             );
@@ -43,7 +45,7 @@ public class DwDash : DwAbility
     {
         if (isActive)
         {
-            player.GetComponent<Rigidbody>().AddRelativeForce(
+            gameManager.player.GetComponent<Rigidbody>().AddRelativeForce(
                 Vector3.forward * strength, ForceMode.Impulse);
         }
     }
@@ -72,7 +74,7 @@ public class DwDash : DwAbility
         {
             case 1:
                 setCooldown(getBaseCooldown());
-                strength = 60f; break;
+                strength = 30f; break;
             case 2:
                 setCooldown(getBaseCooldown());
                 strength = 37.5f; break;

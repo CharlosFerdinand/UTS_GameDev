@@ -13,7 +13,6 @@ public class DwRoomHandlerScript : MonoBehaviour
     private int roomVariaty; //how many room variety exist (prefab)
     private int maxRoom = 5;
     private List<GameObject> listRooms = new List<GameObject>();
-    private int score;
 
     //Notify fog pathing
     [Header("Fog Pathing")]
@@ -26,10 +25,14 @@ public class DwRoomHandlerScript : MonoBehaviour
     [SerializeField] private TMP_Text scoreCurrently;
 
 
+    //game manager
+    DwGameManager gameManager;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        score = 0;
+        gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
         roomVariaty = roomVariation.Count;
 
         //add starting room and their FogPath to fog.addPath()
@@ -48,7 +51,7 @@ public class DwRoomHandlerScript : MonoBehaviour
         return roomVariation[index];
     }
 
-    //recieve notification
+    //recieve notification, called by EnterBox trigger
     public void notifyHandler(GameObject sourceObject)
     {
         //find index of source of the caller
@@ -92,8 +95,8 @@ public class DwRoomHandlerScript : MonoBehaviour
         }
 
         //add score and display it
-        score += 1;
-        if (score > 99999)
+        gameManager.score += 1;
+        if (gameManager.score > 99999)
         {
             scoreAmount.text = "+99999";
             scoreResult.text = "Room +99999";
@@ -101,9 +104,9 @@ public class DwRoomHandlerScript : MonoBehaviour
         }
         else
         {
-            scoreAmount.text = score.ToString();
-            scoreResult.text = "Room " + score.ToString();
-            scoreCurrently.text = "Room " + score.ToString();
+            scoreAmount.text = gameManager.score.ToString();
+            scoreResult.text = "Room " + gameManager.score.ToString();
+            scoreCurrently.text = "Room " + gameManager.score.ToString();
         }
     }
 }

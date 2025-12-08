@@ -14,20 +14,26 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
 
 
     [Header("UI")]
+    [SerializeField] private GameObject uiDeathScreen;
+    [SerializeField] private GameObject uiPauseScreen;
     [SerializeField] private TMP_Text uiHpText;
+    [SerializeField] private TMP_Text uiPointText;
     [SerializeField] private Slider uiHpBar;
-    [SerializeField] private GameObject deathScreen;
 
     [Header("ParticleEffect")]
     public GameObject bloodEffect;
     public GameObject coughBloodEffect;
 
+    //game manager
+    private DwGameManager gameManager;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        deathScreen.SetActive(false); //hide death screen in case of accidentally activating it on the editor.
-        Cursor.lockState = CursorLockMode.Locked;
+        //initialize game manager and start the game
+        gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
+        gameManager.StartGame(uiDeathScreen, uiPauseScreen);
         playerMaxHp = startingMaxHp; //set max hp
         hp = playerMaxHp; //apply health
     }
@@ -35,13 +41,12 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     // Update is called once per frame
     void Update()
     {
-        //change status to "the heavy is DEAD!"
-        if (hp<=0)
+        //change status to dead, and update the point amount
+        if (hp<=0 && isAlive)
         {
             isAlive = false;
-            Time.timeScale = 0f; //stop time
-            deathScreen.SetActive(true); //show death screen
-            Cursor.lockState = CursorLockMode.None; //release mouse lock
+            gameManager.GameOver(uiDeathScreen); //this add score to game manager
+            uiPointText.text = "Your Point: " + gameManager.point;
         }
         //apply regen while alive
         else

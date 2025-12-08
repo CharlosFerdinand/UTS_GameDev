@@ -91,8 +91,11 @@ public class DwPlayerMovementScript : MonoBehaviour
     public float debugSpeed;
 
     [Header("UI")]
-    [SerializeField] private TMP_Text uiDebugText;
-    [SerializeField] private GameObject uiPauseScreen; //looking at how i name the variable, i think i need a rule for naming, such as preffix, main, suffix.
+    [SerializeField] private TMP_Text uiDebugText; //looking at how i name the variable, i think i need a rule for naming, such as preffix, main, suffix.
+    [SerializeField] private GameObject uiPauseScreen;
+    
+    //game manager
+    private DwGameManager gameManager;
 
 
 
@@ -101,12 +104,11 @@ public class DwPlayerMovementScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        uiPauseScreen.SetActive(false); //just in case that in editor, uiPauseScreen was set to active, deactivate it.
         mainCamera = this.transform.GetChild(0).gameObject; //get first child, must be main camera
         rb = this.GetComponent<Rigidbody>();
         hpScript = this.GetComponent<DwPlayerHpScript>();
+        gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
         speed = baseSpeed;
-        Time.timeScale = 1f; //ensures that start of the game time always move.
     }
 
     // Update is called once per frame
@@ -123,7 +125,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
         writeStats();
         //movement is only applied when player is still alive.
-        if (hpScript.isAlive && Time.timeScale > 0f) //only run if player is alive and time is moving
+        if (hpScript.isAlive && !gameManager.isPaused) //only run if player is alive and time is moving
         {
             movement();
         }
@@ -257,7 +259,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //rotates the character (called in update to give more responsiveness)
     private void rotatePlayer() //rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     {
-        if (Time.timeScale > 0) //rotate only when not paused
+        if (!gameManager.isPaused) //rotate only when not paused
         {
             //rotation
             this.transform.Rotate(Vector3.up * mouseX); //rotate on y axis
@@ -268,21 +270,6 @@ public class DwPlayerMovementScript : MonoBehaviour
     }//rotates the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-
-    //function to fix wall stick bug if it happened, must test: [using only y as a mean of detecting bug instead of using magnitude]
-    private void wallStickFix()
-    {
-        if (
-            (Vector3.right * moveDirection.x + Vector3.forward * moveDirection.z).magnitude > 0.1f &&
-            (rb.linearVelocity.z * Vector3.forward + rb.linearVelocity.x * Vector3.right).magnitude < 0.1f &&
-            !isGrounded
-            )
-        {
-            rb.linearVelocity = moveDirection.y * Vector3.up + Vector3.right * rb.linearVelocity.x + Vector3.forward * rb.linearVelocity.z;
-        }
-        //tho on the brighter side of things, no more wall sticking.
-    }
-
     //function for setting velocity of the ground
     private Vector3 getGroundVelocity()
     {
@@ -292,9 +279,6 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         return Vector3.zero;
     }
-
-    //function for taking dmg
-    //private void 
 
     //is grounded if slopeHit degree correlate with it's distance
     private void slopeGroundCheck()
@@ -399,32 +383,22 @@ public class DwPlayerMovementScript : MonoBehaviour
     //update pause key, will pause upon activation
     private void pauseKey()
     {
+        //will pause and unpause game whenever pause key is pressed when player is alive
         if (Input.GetKeyDown(PauseKey))
         {
+            //if player is alive
             if (hpScript.isAlive)
             {
-                //toggle pause
-                if (Time.timeScale > 0f)
+                //if game is paused, continue it
+                if (DwGameManager.gameManager.GetComponent<DwGameManager>().isPaused)
                 {
-                    Time.timeScale = 0f;
+                    DwGameManager.gameManager.GetComponent<DwGameManager>().ContinueGame(uiPauseScreen);
                 }
-                else
+                else //if game is running, pause it
                 {
-                    Time.timeScale = 1f;
-                }
-
-                if (Time.timeScale == 0)
-                { //pause the game
-                    uiPauseScreen.SetActive(true); //show screen
-                    Cursor.lockState = CursorLockMode.None; //unlock mouse
+                    DwGameManager.gameManager.GetComponent<DwGameManager>().PauseGame(uiPauseScreen);
                 }
             }
-        }
-
-        if (Time.timeScale > 0f)
-        { //unpause the game
-            uiPauseScreen.SetActive(false); //close screen
-            Cursor.lockState = CursorLockMode.Locked; //lock mouse
         }
     }
 
@@ -441,7 +415,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
     }
 
-    //update vertical rotation (lat, minecraft uses lat as well aka latitude. hopefully i will learn to make a minecraft mod by 2026)
+    //update vertical rotation (latitude)
     private void headAxisY()
     {
         mouseY = Input.GetAxis("Mouse Y") * sensitivity;
