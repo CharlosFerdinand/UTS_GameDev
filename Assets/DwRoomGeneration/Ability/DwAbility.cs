@@ -55,7 +55,7 @@ public abstract class DwAbility : MonoBehaviour
         abilityCooldown = newCooldown;
     }
 
-    protected float getCooldown()
+    public float getCooldown()
     {
         return abilityCooldown;
     }

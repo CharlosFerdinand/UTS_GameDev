@@ -79,6 +79,7 @@
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Pixelplacement\iTweenPath\iTweenPath.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\Fog\FogScript.cs" />
+    <Compile Include="Assets\DwRoomGeneration\UI\DwAbilityUiScript.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\Sample\MoveSample.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\Sample\RotateSample.cs" />
     <Compile Include="Assets\DwRoomGeneration\Ability\DwAbility.cs" />

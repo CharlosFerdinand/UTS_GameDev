@@ -20,6 +20,7 @@ public class DwDash : DwAbility
     private float dashDuration = 0.15f;
     private DwGameManager gameManager;
 
+    //initialization
     private void Start()
     {
         //initialize game manager
@@ -40,6 +41,7 @@ public class DwDash : DwAbility
             upgradeCost //list of upgrade cost
             );
     }
+
 
     private void FixedUpdate()
     {
