@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,7 +45,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private float feetToGround; //offset for ground checking
     [SerializeField] private float groundDrag; //for rigidbody
     
-    //stats
+    //character physical trait
     private float playerHeight;
     private float centerToFeet; //usually half of player's height
     private float baseSpeed; //after applying state
@@ -77,9 +78,6 @@ public class DwPlayerMovementScript : MonoBehaviour
     private float maxSlopeDegree = 36.87f; //max acceptable slope
     private RaycastHit slopeHit;
 
-    [Header("Collision Raycast")] //to make sure that you dont stick to platform like a spider, has yet to be implemented
-    private RaycastHit directionHit;
-
 
     [Header("ReadOnly Rb Velocity")]
     public float xVelocity;
@@ -90,10 +88,18 @@ public class DwPlayerMovementScript : MonoBehaviour
     public float debugZDirection;
     public float debugSpeed;
 
+
     [Header("UI")]
     [SerializeField] private TMP_Text uiDebugText; //looking at how i name the variable, i think i need a rule for naming, such as preffix, main, suffix.
     [SerializeField] private GameObject uiPauseScreen;
-    
+
+
+    [Header("Audio Clips")]
+    [SerializeField] private AudioClip soundWalk;
+    [SerializeField] private AudioClip soundRun;
+    private AudioSource audioSource;
+
+
     //game manager
     private DwGameManager gameManager;
 
@@ -108,6 +114,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         rb = this.GetComponent<Rigidbody>();
         hpScript = this.GetComponent<DwPlayerHpScript>();
         gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
+        audioSource = this.GetComponent<AudioSource>();
         speed = baseSpeed;
     }
 
@@ -138,7 +145,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     {
         if (collision.gameObject.tag == "groundTag")
         {
-            if (collision.gameObject.GetComponent<Rigidbody>() != null && Physics.Raycast(this.transform.position,Vector3.down, centerToFeet+feetToGround))
+            if (collision.gameObject.GetComponent<Rigidbody>() != null && Physics.Raycast(this.transform.position,Vector3.down, centerToFeet+feetToGround, layer))
             {
                 groundVelocity = collision.gameObject.GetComponent<Rigidbody>().linearVelocity / 2;
                 onRigidGround = true;
@@ -149,7 +156,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //ground checking
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "groundTag")
+        if (other.gameObject.tag == "groundTag" || (other.gameObject.layer & layer) != 0)
         {
             isGrounded = true;
         }
@@ -181,11 +188,23 @@ public class DwPlayerMovementScript : MonoBehaviour
             {
                 playerState = PlayerState.Sprinting;
                 baseSpeed = sprintSpeed;
+
+                //change audio clip to running
+                if (audioSource.clip != soundRun)
+                {
+                    audioSource.clip = soundRun;
+                }
             }
             else
             {
                 playerState = PlayerState.Walking;
                 baseSpeed = walkSpeed;
+
+                //change audio clip to walking
+                if (audioSource.clip != soundWalk)
+                {
+                    audioSource.clip = soundWalk;
+                }
             }
         }
         else if (!isGrounded) //when player is not touching the ground
@@ -200,16 +219,24 @@ public class DwPlayerMovementScript : MonoBehaviour
         //apply speed
         speed = baseSpeed; //baseSpeed was affected by playerState
         speedLimit(); //this function make sure that character does not move more than the expected speed.
-        moveDirection = getGroundVelocity(); //get the velocity of ground
+        moveDirection = Vector3.zero;
 
-        //apply drag
+        //if grounded
         if (isGrounded)
         {
+            //apply drag
             rb.linearDamping = groundDrag;
         }
-        else
-        { //when on air, you dont take drag
+        else //otherwise
+        { 
+            //when on air, you dont take drag
             rb.linearDamping = 0f;
+
+            //stop the footstep audio
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
         }
 
         //gravity
@@ -241,11 +268,34 @@ public class DwPlayerMovementScript : MonoBehaviour
 
             //apply the horizontal movement
             moveDirection += horizontalMove;
+
+            //play audio source, clip is modified from handleState(), should have been HandleState since its a method name, but it was written a few month ago.
+            //if audio source's clip is null, set it to walk sound
+            if (audioSource.clip == null)
+            {
+                audioSource.clip = soundWalk;
+            }
+            //play the audio
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
         }
-        //if there's no x z movement, no x and z movement (so player don't slip)
         else
         {
+            //when there is no x z input, all x and z movement stop
             rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
+            if (onRigidGround)
+            {
+                //apply speed if on rigid ground
+                rb.linearVelocity += getGroundVelocity();
+            }
+
+            //stop the audio
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
         }
         
         jumpCheck();
@@ -371,7 +421,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //gets the height of character based on renderer and update the "center to feet" distance
     private void updateCharacter()
     {
-        playerHeight = this.gameObject.GetComponent<Renderer>().bounds.size.y; //get player height
+        playerHeight = this.gameObject.GetComponent<CapsuleCollider>().bounds.size.y;
         centerToFeet = playerHeight / 2;
     }
 

@@ -2669,6 +2669,7 @@ GameObject:
   - component: {fileID: 797777978}
   - component: {fileID: 797777979}
   - component: {fileID: 797777980}
+  - component: {fileID: 797777981}
   m_Layer: 6
   m_Name: Player
   m_TagString: hero
@@ -2829,6 +2830,8 @@ MonoBehaviour:
   debugSpeed: 0
   uiDebugText: {fileID: 1261625201}
   uiPauseScreen: {fileID: 1540926812}
+  soundWalk: {fileID: 8300000, guid: d8274b71861923243ab29b247588b0e1, type: 3}
+  soundRun: {fileID: 8300000, guid: 4cbc415f3d12ba8439358caec03ef805, type: 3}
 --- !u!135 &797777979
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2872,6 +2875,103 @@ MonoBehaviour:
   uiHpBar: {fileID: 173071803}
   bloodEffect: {fileID: 7409357121059723754, guid: 4ce7e312066f0814f8b54f2ab828baee, type: 3}
   coughBloodEffect: {fileID: 949333329158304500, guid: 553061d34ba7da04fad51498cbeae4ed, type: 3}
+--- !u!82 &797777981
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 797777972}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &834059755 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 9c33f225c6ee98243a57390a7235bd50, type: 3}
@@ -12116,6 +12216,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1103503815925864303, guid: 35bd600d820bb794085b6d566760efe6, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 877abfc6e0ac576439df5813c8cec66b, type: 2}
+    - target: {fileID: 4058998057774096355, guid: 35bd600d820bb794085b6d566760efe6, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: 8faa2a4a7f9ab9f42a941f38d30a3ada, type: 2}
     - target: {fileID: 9093193567732387223, guid: 35bd600d820bb794085b6d566760efe6, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.5
@@ -20277,7 +20385,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: b31c62c35ced11c4383176ecffe930c9, type: 3}
       propertyPath: m_TagString
-      value: groundTag
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: b31c62c35ced11c4383176ecffe930c9, type: 3}
       propertyPath: m_LocalScale.x
