@@ -62,12 +62,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\DwRoomGeneration\PlayerScripts\DwPlayerHpScript.cs" />
+    <Compile Include="Assets\DwRoomGeneration\Audio\AudioBankScript.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\iTween.cs" />
     <Compile Include="Assets\Scs_Testing\Movement_Testing.cs" />
+    <Compile Include="Assets\DwRoomGeneration\Environment\LanternScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\UI\SettingScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\SpikeTrapScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwRoomEnterScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\PlayerScripts\DwPlayerMovementScript.cs" />
+    <Compile Include="Assets\DwRoomGeneration\Environment\SpikeDamageScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwGameManager.cs" />
     <Compile Include="Assets\CharacterMovement.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\Sample\SampleInfo.cs" />

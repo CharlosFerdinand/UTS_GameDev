@@ -64,6 +64,12 @@ public class DwDash : DwAbility
             StartCoroutine(DashFovCoroutine());
             Invoke("dashFinish", dashDuration);
             Invoke("cooldownFinish", getCooldown());
+
+            //play audio
+            Camera.main.gameObject.GetComponent<AudioSource>().clip = AudioBankScript.dash;
+            Camera.main.gameObject.GetComponent<AudioSource>().loop = false;
+            Camera.main.gameObject.GetComponent<AudioSource>().time = 0.6f;
+            Camera.main.gameObject.GetComponent<AudioSource>().Play();
         }
     }
 

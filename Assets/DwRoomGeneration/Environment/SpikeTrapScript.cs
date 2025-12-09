@@ -10,11 +10,18 @@ public class SpikeTrapScript : MonoBehaviour
     private bool sleep = true; //when it consume no computing power.
     private Transform spike; //im gonna use this to move the spike, y position will go up to 0.46 local if activated
 
+
+    [Header("Spike Stats")]
+    [SerializeField] private AudioClip soundSpike;
+    private AudioSource audioSource;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         spike = transform.GetChild(0); //as it is the only item in TrapBase
         rest = spike.localPosition;
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = soundSpike;
     }
 
     // used fixed update to control the collision detection. (activate=true when on collision)
@@ -24,11 +31,18 @@ public class SpikeTrapScript : MonoBehaviour
         { //wake up when activate
             sleep = false;
         }
+        else
+        {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+        }
 
         if (!sleep && activate)
         {//when awake and is active, go to attack position
             moveSpike(attackPosition); //will move toward attack position.
-        } 
+        }
         else if (!sleep)
         { //when awake but not attacking
             sleep = moveSpike(rest); //if it stop moving or if it reach resting zone, sleep.
@@ -38,11 +52,22 @@ public class SpikeTrapScript : MonoBehaviour
 
 
     //activation
-    private void OnCollisionStay(Collision collision)
+    private void OnTriggerStay(Collider other)
     {
-        if (collision.gameObject.tag == "hero")
+        if (other.gameObject.tag == "hero")
         {
             activate = true;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "hero")
+        {
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
         }
     }
 
@@ -59,11 +84,8 @@ public class SpikeTrapScript : MonoBehaviour
         return true;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public float GetDamage()
     {
-        if (other.gameObject.tag == "hero" && other.gameObject.GetComponent<DwInterfaceDamageAble>() != null)
-        {
-            other.gameObject.GetComponent<DwInterfaceDamageAble>().takeDamage(damage, this.gameObject);
-        }
+        return damage;
     }
 }
