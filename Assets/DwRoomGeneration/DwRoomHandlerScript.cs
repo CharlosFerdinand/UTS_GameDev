@@ -35,12 +35,30 @@ public class DwRoomHandlerScript : MonoBehaviour
         gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
         roomVariaty = roomVariation.Count;
 
-        //add starting room and their FogPath to fog.addPath()
-        listRooms.Add(GameObject.Find("Starting Room 1"));
-        listRooms.Add(GameObject.Find("DwRoom1"));
-        fog.addPath(GameObject.Find("DwRoom1").transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
-        listRooms.Add(GameObject.Find("DwRoom2"));
-        fog.addPath(GameObject.Find("DwRoom2").transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
+        //register starting room
+        GameObject startingRoom = GameObject.Find("Starting Room 1");
+        listRooms.Add(startingRoom);
+
+        //generate and register first room
+        GameObject firstRoom = getRoom();
+        firstRoom = Instantiate(
+            firstRoom,
+            startingRoom.transform.Find("ExitRoom").position,
+            startingRoom.transform.Find("ExitRoom").rotation
+            );
+        listRooms.Add(firstRoom);
+        fog.addPath(firstRoom.transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
+
+        //generate and register second room
+        GameObject secondRoom = getRoom();
+        Transform target = firstRoom.transform.GetChild(0).GetComponent<DwRoomEnterScript>().exitRoom;
+        secondRoom = Instantiate(
+            secondRoom,
+            target.position,
+            target.rotation
+            );
+        listRooms.Add(secondRoom);
+        fog.addPath(secondRoom.transform.GetChild(0).GetComponent<DwRoomEnterScript>().getFogPathing());
     }
 
 
