@@ -44,6 +44,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     [SerializeField] private float sprintSpeed = 18f;
     [SerializeField] private float feetToGround; //offset for ground checking
     [SerializeField] private float groundDrag; //for rigidbody
+    public float speedMultiplier = 1;
     
     //character physical trait
     private float playerHeight;
@@ -259,15 +260,12 @@ public class DwPlayerMovementScript : MonoBehaviour
             if (onSlope())
             {
                 //movement direction normalized into slope's plane
-                horizontalMove = getSlopeNormalizedMove(horizontalMove) * speed;
+                horizontalMove = getSlopeNormalizedMove(horizontalMove);
             }
-            else //else, apply horizontal move normally
-            {
-                horizontalMove = horizontalMove * speed;
-            }
+            horizontalMove = horizontalMove * speed;
 
             //apply the horizontal movement
-            moveDirection += horizontalMove;
+            moveDirection += horizontalMove * speedMultiplier;
 
             //play audio source, clip is modified from handleState(), should have been HandleState since its a method name, but it was written a few month ago.
             //if audio source's clip is null, set it to walk sound
@@ -301,7 +299,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         jumpCheck();
 
         //apply movement
-        rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.Impulse);
+        rb.AddForce(moveDirection * 12 * Time.fixedDeltaTime, ForceMode.Impulse);
 
     }//moves the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

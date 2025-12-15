@@ -17,7 +17,6 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     [SerializeField] private GameObject uiDeathScreen;
     [SerializeField] private GameObject uiPauseScreen;
     [SerializeField] private TMP_Text uiHpText;
-    [SerializeField] private TMP_Text uiPointText;
     [SerializeField] private Slider uiHpBar;
 
     [Header("ParticleEffect")]
@@ -41,12 +40,11 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
     // Update is called once per frame
     void Update()
     {
-        //change status to dead, and update the point amount
+        //change status to dead
         if (hp<=0 && isAlive)
         {
             isAlive = false;
             gameManager.GameOver(uiDeathScreen); //this add score to game manager
-            uiPointText.text = "Your Point: " + gameManager.point;
         }
         //apply regen while alive
         else

@@ -20,7 +20,7 @@ using UnityEngine;
 //public getUpgradeCost - will return upgrade cost when not max level yet, otherwise return -1
 public abstract class DwAbility : MonoBehaviour
 {
-    private Ability abilityName = Ability.None;
+    private Ability abilityName = Ability.Dash;
     private float abilityBaseCooldown = 1f;
     private float abilityCooldown = 1f;
     private int abilityLevel = 0;
@@ -66,7 +66,7 @@ public abstract class DwAbility : MonoBehaviour
         abilityLevel = newLevel;
     }
 
-    protected int getLevel()
+    public int getLevel()
     {
         return abilityLevel;
     }
@@ -114,4 +114,5 @@ public abstract class DwAbility : MonoBehaviour
 
     public abstract void ActivateAbility();
     public abstract void UpgradeAbility();
+    public abstract bool LevelValidityCheck();
 }

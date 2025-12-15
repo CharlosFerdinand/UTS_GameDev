@@ -65,6 +65,7 @@
     <Compile Include="Assets\DwRoomGeneration\Audio\AudioBankScript.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\iTween.cs" />
     <Compile Include="Assets\Scs_Testing\Movement_Testing.cs" />
+    <Compile Include="Assets\DwRoomGeneration\UI\ShopSceneUI\ShopButtonHandlerScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\LanternScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\UI\SettingScript.cs" />
     <Compile Include="Assets\DwRoomGeneration\Environment\SpikeTrapScript.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Assets\DwRoomGeneration\UI\DwAbilityUiScript.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\Sample\MoveSample.cs" />
     <Compile Include="Assets\Pixelplacement\iTween\Sample\RotateSample.cs" />
+    <Compile Include="Assets\DwRoomGeneration\Ability\DwHaste.cs" />
     <Compile Include="Assets\DwRoomGeneration\Ability\DwAbility.cs" />
     <Compile Include="Assets\DwRoomGeneration\Ability\DwDash.cs" />
     <Compile Include="Assets\DwRoomGeneration\DwInterfaceDamageAble.cs" />

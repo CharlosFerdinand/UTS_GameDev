@@ -5,7 +5,6 @@ using UnityEngine;
 
 public enum Ability
 {
-    None,
     Dash,
     TimeStop,
     Haste
@@ -33,27 +32,43 @@ public class DwGameManager : MonoBehaviour
     //Lifecycle =======================================================================
     private void Awake()
     {
+        //if game manager already exist, destroy this to prevent duplicate
         if (gameManager != null)
         {
             Destroy(this.gameObject);
         }
         else
         {
+            //first time created, set name, get the game manager into static var, dont destroy
             this.gameObject.name = "gameManager";
             gameManager = GameObject.Find("gameManager");
             DontDestroyOnLoad(gameManager);
+
+            //initialize ability component
+            if (gameObject.GetComponent<DwDash>() == null)
+            {
+                gameObject.AddComponent<DwDash>();
+                abilityScripts.Add(gameObject.GetComponent<DwDash>());
+            }
+            if (gameObject.GetComponent<DwHaste>() == null)
+            {
+                gameObject.AddComponent<DwHaste>();
+                abilityScripts.Add(gameObject.GetComponent<DwHaste>());
+            }/*
+            if (gameObject.GetComponent<DwTimeStop>() == null)
+            {
+                gameObject.AddComponent<DwTimeStop>();
+                abilityScripts.Add(gameObject.GetComponent<DwTimeStop>());
+            }*/
+            //apply default ability
+            abilityScript = abilityScripts[0];
         }
     }
 
     
     void Start()
     {
-        if (gameObject.GetComponent<DwDash>() == null)
-        {
-            gameObject.AddComponent<DwDash>();
-            abilityScripts.Add(gameObject.GetComponent<DwDash>());
-        }
-        abilityScript = abilityScripts[0];
+        
     }
 
 
@@ -82,9 +97,6 @@ public class DwGameManager : MonoBehaviour
     {
         //put score into point and update ui
         point += score;
-        uiDeathScreen.transform.Find("UpgradeAbility").Find("UpgradeCost")
-            .GetChild(0).gameObject.GetComponent<TMP_Text>().text
-            = "UpgradeCost: " + abilityScript.getUpgradeCost();
         //show death screen, release mouse lock, pause the time
         uiDeathScreen.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
@@ -125,19 +137,28 @@ public class DwGameManager : MonoBehaviour
 
     //method ==========================================================================
 
-    //checks the chosen ability and return the corresponding chosen ability.
-    //will return null as default value.
+    //checks the chosen ability and update the current ability script.
+    //default ability script is DwDash
     private void AbilityCheck()
     {
-        DwAbility targetAbility = null;
-        foreach( DwAbility abilityScript in abilityScripts)
+        //find ability according to current ability
+        DwAbility targetAbility = FindAbility(this.ability);
+
+        //if null
+        if (targetAbility == null) targetAbility = abilityScripts[0];
+
+        //check level validity
+        if (targetAbility.LevelValidityCheck())
         {
-            if (abilityScript.getName() == this.ability)
-            {
-                targetAbility = abilityScript;
-            }
+            //if valid, apply script
+            this.abilityScript = targetAbility;
         }
-        this.abilityScript = targetAbility;
+        else
+        {
+            //if invalid, apply dash ability
+            this.ability = Ability.Dash;
+            this.abilityScript = abilityScripts[0];
+        }
     }
 
 
@@ -145,17 +166,28 @@ public class DwGameManager : MonoBehaviour
 
     //public method ===================================================================
 
-    //call this method on button. Ability abilityName is the one that gets upgraded.
-    public void AbilityUpgrade(Ability abilityName)
+    //return ability script with the corresponding ability name from list of ability script (abilityScripts)
+    public DwAbility FindAbility(Ability target)
     {
         DwAbility targetAbility = null;
-        foreach (DwAbility abilityScript in abilityScripts)
+        foreach (DwAbility possibleAbilityScript in abilityScripts)
         {
-            if (abilityScript.getName() == abilityName)
+            if (possibleAbilityScript.getName() == target)
             {
-                targetAbility = abilityScript;
+                targetAbility = possibleAbilityScript;
             }
         }
+        return targetAbility;
+    }
+
+
+    //Button handler method ===========================================================
+
+    //call this method from a button handler
+    public void UpgradeAbility(Ability abilityName)
+    {
+        //find ability script
+        DwAbility targetAbility = FindAbility(abilityName);
 
         if (targetAbility.getUpgradeCost() == -1)
         {//check if target ability is already max level
@@ -166,5 +198,11 @@ public class DwGameManager : MonoBehaviour
             point -= targetAbility.getUpgradeCost();
             targetAbility.UpgradeAbility();
         }
+    }
+
+    //call this method from button handler
+    public void EquipAbility(Ability abilityName)
+    {
+        ability = abilityName;
     }
 }

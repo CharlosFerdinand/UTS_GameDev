@@ -14,17 +14,20 @@ public class DwButtonHandler : MonoBehaviour
         canvas = GameObject.Find("Canvas");
         gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
     }
-    public void continueBtn()
+
+
+    //Navigation ======================================================================
+    public void NavigateContinueBtn()
     {
         gameManager.ContinueGame(canvas.transform.Find("PauseScreen").gameObject);
     }
 
-    public void playAgain()
+    public void NavigatePlayBtn()
     {
         SceneManager.LoadScene("MainScene");
     }
 
-    public void returnToMainMenu()
+    public void NavigateMainMenuBtn()
     {
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
@@ -37,32 +40,14 @@ public class DwButtonHandler : MonoBehaviour
 
     //SETTING MENU ===================================================================
     
-    public void settingButton()
+    public void SettingOpenBtn()
     { //open setting
         GameObject settingMenu = canvas.transform.Find("PauseScreen").Find("SettingMenu").gameObject;
         settingMenu.SetActive(true);
     }
 
-    public void closeSettingButton()
+    public void SettingCloseBtn()
     { //close settin
         canvas.transform.Find("PauseScreen").Find("SettingMenu").gameObject.SetActive(false);
-    }
-
-
-
-    //Upgrade
-    public void dashUpgradeBtn()
-    {
-        //upgrade ability and update ui
-        gameManager.AbilityUpgrade(Ability.Dash);
-        canvas.transform.Find("DeathScreen").Find("UpgradeAbility").Find("CurrentPoint")
-            .GetChild(0).gameObject.GetComponent<TMP_Text>().text =
-            "Your Point: " + gameManager.point;
-        canvas.transform.Find("DeathScreen").transform.Find("UpgradeAbility").Find("UpgradeCost")
-            .GetChild(0).gameObject.GetComponent<TMP_Text>().text =
-            "UpgradeCost: " + (
-            //if upgrade cost is lower than 0, return max lvl
-            gameManager.abilityScript.getUpgradeCost()<0 ? "Maxed" : gameManager.abilityScript.getUpgradeCost()
-            );
     }
 }

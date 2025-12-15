@@ -9,6 +9,10 @@ public class DwAbilityUiScript : MonoBehaviour
     private DwGameManager gameManager;
     [SerializeField] Texture dashReady;
     [SerializeField] Texture dashCooldown;
+    [SerializeField] Texture hasteReady;
+    [SerializeField] Texture hasteCooldown;
+    [SerializeField] Texture timeStopReady;
+    [SerializeField] Texture timeStopCooldown;
 
     //holder
     [SerializeField] RawImage uiAbilityIcon;
@@ -21,9 +25,26 @@ public class DwAbilityUiScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        //get game manager
         gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
-        uiAbilityIcon.texture = dashReady;
+        
+        //set initial value
         uiAbilityText.text = "Q";
+        switch (gameManager.ability)
+        {
+            case Ability.Dash:
+                uiAbilityIcon.texture = dashReady;
+                break;
+            case Ability.Haste:
+                uiAbilityIcon.texture = hasteReady;
+                break;
+            case Ability.TimeStop:
+                uiAbilityIcon.texture = timeStopReady;
+                break;
+            default:
+                uiAbilityIcon.texture = dashReady;
+                break;
+        }
     }
 
     // Update is called once per frame
@@ -32,12 +53,26 @@ public class DwAbilityUiScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q) && !onCooldown)
         {
             onCooldown = true;
-            StartCoroutine(CooldownCoroutine());
+            switch(gameManager.ability)
+            {
+                case Ability.Dash:
+                    StartCoroutine(CooldownCoroutine(dashReady, dashCooldown));
+                    break;
+                case Ability.Haste:
+                    StartCoroutine(CooldownCoroutine(hasteReady, hasteCooldown));
+                    break;
+                case Ability.TimeStop:
+                    StartCoroutine(CooldownCoroutine(timeStopReady, timeStopCooldown));
+                    break;
+                default:
+                    StartCoroutine(CooldownCoroutine(dashReady, dashCooldown));
+                    break;
+            }
         }
     }
 
     //update ui ability cooldown
-    public IEnumerator CooldownCoroutine()
+    public IEnumerator CooldownCoroutine(Texture iconReady, Texture iconCooldown)
     {
         //declare the ability, cooldown, and stamp the time
         DwAbility ability = gameManager.abilityScript;
@@ -45,7 +80,7 @@ public class DwAbilityUiScript : MonoBehaviour
         float timeStamp = Time.time;
 
         //change icon to cooldown state
-        uiAbilityIcon.texture = dashCooldown;
+        uiAbilityIcon.texture = iconCooldown;
 
         //update ui text according to amount of cooldown left (made it so that if cooldown left is 9.1, it will show 10 because of math ceiling)
         while (Time.time < timeStamp + cooldown)
@@ -59,7 +94,7 @@ public class DwAbilityUiScript : MonoBehaviour
         }
 
         //change icon back to it's ready state, and revert text back to "Q"
-        uiAbilityIcon.texture = dashReady;
+        uiAbilityIcon.texture = iconReady;
         uiAbilityText.text = "Q";
 
         //is no longer on cooldown

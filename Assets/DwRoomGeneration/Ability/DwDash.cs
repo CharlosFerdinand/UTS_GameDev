@@ -21,7 +21,7 @@ public class DwDash : DwAbility
     private DwGameManager gameManager;
 
     //initialization
-    private void Start()
+    private void Awake()
     {
         //initialize game manager
         gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
@@ -56,8 +56,8 @@ public class DwDash : DwAbility
     //ability
     override public void ActivateAbility()
     {
-        //only run ability effect when ability is ready
-        if (isReady)
+        //only run ability effect when ability is ready and is not active
+        if (isReady && !isActive)
         {
             isReady = false;
             isActive = true;
@@ -100,6 +100,13 @@ public class DwDash : DwAbility
         }
     }
 
+    public override bool LevelValidityCheck()
+    {
+        //if level is lower than 1, return invalid
+        if (getLevel() < 1) return false;
+        return true;
+    }
+
     private void cooldownFinish()
     {
         isReady = true;
@@ -121,10 +128,10 @@ public class DwDash : DwAbility
         {
             cam.fieldOfView = Mathf.Clamp(
                 fov - (0.20f * fov * i / (dashDuration * 0.3f)),
-                0.8f * fov,
-                fov
+                fov,
+                1.2f * fov
                 );
-            yield return new WaitForSeconds(Time.deltaTime);
+            yield return null;
         }
 
         //fov stays for 40% of the dash duration
@@ -135,10 +142,10 @@ public class DwDash : DwAbility
         {
             cam.fieldOfView = Mathf.Clamp(
                 fov + (0.20f * fov * i / (dashDuration * 0.3f)),
-                0.8f * fov,
-                fov
+                fov,
+                1.2f * fov
                 );
-            yield return new WaitForSeconds(Time.deltaTime);
+            yield return null;
         }
 
         //snap back to normal
