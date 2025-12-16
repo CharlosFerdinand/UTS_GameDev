@@ -62,6 +62,25 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Become faster, increased movement speed"
             ;
 
+        //update time stop ability description
+        timeStopUI.transform.Find("Description").gameObject.GetComponent<TMP_Text>().text =
+            //level
+            "Level " + gameManager.FindAbility(Ability.TimeStop).getLevel().ToString() + "\n" +
+
+            //upgrade cost
+            "Upgrade Cost: " + (
+            //check upgrade cost
+            gameManager.FindAbility(Ability.TimeStop).getUpgradeCost() < 0 ?
+            //if < -1, update ui to "Maxed"
+            "Max" :
+            //otherwise show the upgrade cost amount
+            gameManager.FindAbility(Ability.TimeStop).getUpgradeCost()
+            ) + "\n" +
+
+            //description
+            "Stop the time momentarily, but player can still move"
+            ;
+
         //set title equip status
         switch (gameManager.ability)
         {
@@ -232,8 +251,8 @@ public class ShopButtonHandlerScript : MonoBehaviour
             gameManager.UpgradeAbility(Ability.Haste);
         }
 
-            //update value of point
-            pointUI.text = "Point: " + gameManager.point.ToString();
+        //update value of point
+        pointUI.text = "Point: " + gameManager.point.ToString();
 
         //update haste ability description
         hasteUI.transform.Find("Description").GetComponent<TMP_Text>().text =
@@ -256,10 +275,45 @@ public class ShopButtonHandlerScript : MonoBehaviour
     }
     public void UpgradeTimeStopBtn()
     {
-        //upgrade ability
-        gameManager.UpgradeAbility(Ability.TimeStop);
+        //if time stop level is currently 0
+        if (gameManager.FindAbility(Ability.TimeStop).getLevel() == 0)
+        {
+            //upgrade ability
+            gameManager.UpgradeAbility(Ability.TimeStop);
+            //if then time stop level turn from 0 to 1, change from haste locked to haste
+            if (gameManager.FindAbility(Ability.TimeStop).getLevel() == 1)
+            {
+                //make the title no longer say Locked
+                timeStopUI.transform.Find("AbilityName").gameObject.GetComponent<TMP_Text>().text =
+                    "Time Stop";
+            }
+        }
+        else
+        { //upgrade normally
+            //upgrade ability
+            gameManager.UpgradeAbility(Ability.TimeStop);
+        }
 
         //update value of point
         pointUI.text = "Point: " + gameManager.point.ToString();
+
+        //update time stop ability description
+        timeStopUI.transform.Find("Description").gameObject.GetComponent<TMP_Text>().text =
+            //level
+            "Level " + gameManager.FindAbility(Ability.TimeStop).getLevel().ToString() + "\n" +
+
+            //upgrade cost
+            "Upgrade Cost: " + (
+            //check upgrade cost
+            gameManager.FindAbility(Ability.TimeStop).getUpgradeCost() < 0 ?
+            //if < -1, update ui to "Maxed"
+            "Max" :
+            //otherwise show the upgrade cost amount
+            gameManager.FindAbility(Ability.TimeStop).getUpgradeCost()
+            ) + "\n" +
+
+            //description
+            "Stop the time momentarily, but player can still move"
+            ;
     }
 }

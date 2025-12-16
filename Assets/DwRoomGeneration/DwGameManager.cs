@@ -20,6 +20,7 @@ public class DwGameManager : MonoBehaviour
     public int point = 0;
     public int score = 0;
     public bool isPaused = false;
+    public bool isTimeStopped = false; //this is modified by Time Stop ability
     public Ability ability = Ability.Dash;
     public List<DwAbility> abilityScripts = new List<DwAbility>();
     public DwAbility abilityScript;
@@ -54,12 +55,12 @@ public class DwGameManager : MonoBehaviour
             {
                 gameObject.AddComponent<DwHaste>();
                 abilityScripts.Add(gameObject.GetComponent<DwHaste>());
-            }/*
+            }
             if (gameObject.GetComponent<DwTimeStop>() == null)
             {
                 gameObject.AddComponent<DwTimeStop>();
                 abilityScripts.Add(gameObject.GetComponent<DwTimeStop>());
-            }*/
+            }
             //apply default ability
             abilityScript = abilityScripts[0];
         }
@@ -78,12 +79,16 @@ public class DwGameManager : MonoBehaviour
         { //when game is paused, stop time.
             Time.timeScale = 0f;
         }
-        else if (Time.timeScale == 0f)
-        { //when game is not paused, yet time is running.
+        else if (isTimeStopped)
+        { //if game is not paused, but time is stopped
+            Time.timeScale = 0f;
+        }
+        else
+        { //if game is not paused and time is not stopped
             Time.timeScale = 1f;
         }
         //activate ability on key click
-        if (Input.GetKeyDown(KeyCode.Q) && abilityScript != null)
+        if (Input.GetKeyDown(KeyCode.Q) && abilityScript != null && player != null)
         {
             abilityScript.ActivateAbility();
         }
@@ -92,7 +97,9 @@ public class DwGameManager : MonoBehaviour
 
 
 
-    //lifecycle ======================================================================
+    //game lifecycle ==================================================================
+    
+    //get called when player hp is considered dead.
     public void GameOver(GameObject uiDeathScreen)
     {
         //put score into point and update ui
@@ -101,8 +108,10 @@ public class DwGameManager : MonoBehaviour
         uiDeathScreen.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
         isPaused = true;
+        isTimeStopped = false;
     }
 
+    //get called every time MainScene start.
     public void StartGame(GameObject uiDeathScreen, GameObject uiPauseScreen)
     {
         //ensure ui panel is off and lock the mouse
@@ -110,13 +119,18 @@ public class DwGameManager : MonoBehaviour
         uiPauseScreen.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         isPaused = false;
+        isTimeStopped = false;
 
         //set up the initial value
         score = 0;
         AbilityCheck();
         player = GameObject.Find("Player");
+
+        //reset ability runtime status
+        abilityScript.NotifyAbilityRuntimeReset();
     }
 
+    //called by button or input related script (movement)
     public void PauseGame(GameObject uiPauseScreen)
     {
         //show pause ui, release mouse, pause the time
@@ -124,6 +138,8 @@ public class DwGameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         isPaused = true;
     }
+
+    //called by button or input related script (movement)
     public void ContinueGame(GameObject uiPauseScreen)
     {
         //show pause ui, release mouse, pause the time

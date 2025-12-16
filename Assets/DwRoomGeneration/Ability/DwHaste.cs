@@ -20,6 +20,14 @@ public class DwHaste : DwAbility
     private float abilityDuration = 5f;
     private DwGameManager gameManager;
 
+    //reset
+    private int runningCoroutine = 0;
+
+
+
+
+    //Lifecycle =======================================================================
+
     //initialization
     private void Awake()
     {
@@ -56,6 +64,10 @@ public class DwHaste : DwAbility
         }
     }
 
+
+
+
+    //Mandatory Method ================================================================
 
     //ability
     override public void ActivateAbility()
@@ -118,6 +130,14 @@ public class DwHaste : DwAbility
         return true;
     }
 
+    public override void NotifyAbilityRuntimeReset()
+    {
+        //stops all coroutine and reset
+        runningCoroutine = 0;
+        CooldownFinish();
+        AbilityFinish();
+    }
+
     //when cooldown is done
     private void CooldownFinish()
     {
@@ -133,35 +153,59 @@ public class DwHaste : DwAbility
     }
 
 
+
+
+    //Coroutine =======================================================================
+
     //fov effect coroutine
     public IEnumerator HasteFovCoroutine()
     {
         //declare variable
         float timestamp = Time.time;
-        Camera camera = Camera.main;
-        float baseFov = camera.fieldOfView;
+        float baseFov = Camera.main.fieldOfView;
         float fov = baseFov;
         
         //linearly increase fov within 0.5 second
         while (Time.time - timestamp <= 0.5f && Time.timeScale != 0)
         {
+            //check for reset
+            if (runningCoroutine <= 0)
+            {
+                //reset modification
+                Camera.main.fieldOfView = baseFov;
+                yield break;
+            }
             fov += 0.3f * baseFov * Time.deltaTime;
-            camera.fieldOfView = Mathf.Clamp(fov, baseFov, 1.15f * baseFov);
+            Camera.main.fieldOfView = Mathf.Clamp(fov, baseFov, 1.15f * baseFov);
             yield return null;
         }
 
         //wait for duration - 1 second
         yield return new WaitForSeconds(abilityDuration - 1);
+        //check for reset
+        if (runningCoroutine <= 0)
+        {
+            //reset modification
+            Camera.main.fieldOfView = baseFov;
+            yield break;
+        }
 
         //return fov by linearly decreasing fov within 0.5 second
         timestamp = Time.time;
         while (Time.time - timestamp <= 0.5f && Time.timeScale != 0)
         {
+            //check for reset
+            if (runningCoroutine <= 0)
+            {
+                //reset modification
+                Camera.main.fieldOfView = baseFov;
+                yield break;
+            }
             fov = fov - 0.5f * baseFov * Time.deltaTime;
-            camera.fieldOfView = Mathf.Clamp(fov, baseFov, 1.15f * baseFov);
+            Camera.main.fieldOfView = Mathf.Clamp(fov, baseFov, 1.15f * baseFov);
             yield return null;
         }
         //snap back to normal
-        camera.fieldOfView = baseFov;
+        Camera.main.fieldOfView = baseFov;
     }
 }

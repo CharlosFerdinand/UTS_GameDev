@@ -9,7 +9,7 @@ public class SpikeTrapScript : MonoBehaviour
     private bool activate = false; //when its alive.
     private bool sleep = true; //when it consume no computing power.
     private Transform spike; //im gonna use this to move the spike, y position will go up to 0.46 local if activated
-
+    private bool timeStopped = false;
 
     [Header("Spike Stats")]
     [SerializeField] private AudioClip soundSpike;
@@ -22,21 +22,23 @@ public class SpikeTrapScript : MonoBehaviour
         rest = spike.localPosition;
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = soundSpike;
+        audioSource.loop = false;
     }
 
     // used fixed update to control the collision detection. (activate=true when on collision)
     void FixedUpdate()
     {
+        //since fixed update can only run while time is not stopped (timeScale)
+        if (timeStopped)
+        {
+            timeStopped = false;
+            //that means by this moment is an update right after a timeStopped moment
+            audioSource.Play();
+        }
+
         if (activate)
         { //wake up when activate
             sleep = false;
-        }
-        else
-        {
-            if (audioSource.isPlaying)
-            {
-                audioSource.Stop();
-            }
         }
 
         if (!sleep && activate)
@@ -64,9 +66,15 @@ public class SpikeTrapScript : MonoBehaviour
     {
         if (other.gameObject.tag == "hero")
         {
-            if (!audioSource.isPlaying)
+            //if audio is not playing and time is normal
+            if (!audioSource.isPlaying && Time.timeScale != 0f)
             {
                 audioSource.Play();
+            }
+            else
+            {
+                timeStopped = true;
+                audioSource.Pause();
             }
         }
     }

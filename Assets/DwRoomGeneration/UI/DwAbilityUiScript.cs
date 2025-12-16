@@ -74,22 +74,25 @@ public class DwAbilityUiScript : MonoBehaviour
     //update ui ability cooldown
     public IEnumerator CooldownCoroutine(Texture iconReady, Texture iconCooldown)
     {
-        //declare the ability, cooldown, and stamp the time
+        //declare the ability, cooldown, and timer
         DwAbility ability = gameManager.abilityScript;
         float cooldown = ability.getCooldown();
-        float timeStamp = Time.time;
+        float timer = cooldown;
 
         //change icon to cooldown state
         uiAbilityIcon.texture = iconCooldown;
 
         //update ui text according to amount of cooldown left (made it so that if cooldown left is 9.1, it will show 10 because of math ceiling)
-        while (Time.time < timeStamp + cooldown)
+        while (timer > 0)
         {
-            //get amount of time passed
-            float timePassed = Time.time - timeStamp;
-            float timeLeft = cooldown - timePassed;
-            //update ui text
-            uiAbilityText.text = "" + Mathf.Ceil(timeLeft);
+            //timer move when time is running (timescale is not 0)
+            if (Time.timeScale != 0)
+            {
+                //count downward
+                timer -= Time.unscaledDeltaTime;
+                //update ui text
+                uiAbilityText.text = "" + Mathf.Ceil(timer);
+            }
             yield return null;//wait till next frame
         }
 

@@ -20,6 +20,9 @@ public class DwDash : DwAbility
     private float dashDuration = 0.15f;
     private DwGameManager gameManager;
 
+    //reset
+    private int runningCoroutine = 0;
+
     //initialization
     private void Awake()
     {
@@ -62,8 +65,8 @@ public class DwDash : DwAbility
             isReady = false;
             isActive = true;
             StartCoroutine(DashFovCoroutine());
-            Invoke("dashFinish", dashDuration);
-            Invoke("cooldownFinish", getCooldown());
+            Invoke("AbilityFinish", dashDuration);
+            Invoke("CooldownFinish", getCooldown());
 
             //play audio
             Camera.main.gameObject.GetComponent<AudioSource>().clip = AudioBankScript.dash;
@@ -107,27 +110,49 @@ public class DwDash : DwAbility
         return true;
     }
 
-    private void cooldownFinish()
+    public override void NotifyAbilityRuntimeReset()
+    {
+        //stop coroutine and reset everything to normal
+        runningCoroutine = 0;
+        //isActive, isReady
+        CooldownFinish();
+        AbilityFinish();
+    }
+
+    private void CooldownFinish()
     {
         isReady = true;
     }
 
 
-    private void dashFinish()
+    private void AbilityFinish()
     {
         isActive = false;
     }
 
+
+
+
+    //Coroutine =======================================================================
+
     //coroutine for setting up the fov while dashing
     public IEnumerator DashFovCoroutine()
     {
-        Camera cam = Camera.main;
-        float fov = cam.fieldOfView;
+        //inform component running coroutine amount update
+        runningCoroutine++;
+        float fov = Camera.main.fieldOfView;
         //increase fov for 30% of the dash duration
         for (float i = 0; i < dashDuration * 0.3f; i += Time.deltaTime)
         {
-            cam.fieldOfView = Mathf.Clamp(
-                fov - (0.20f * fov * i / (dashDuration * 0.3f)),
+            //reset checks
+            if (runningCoroutine == 0)
+            {
+                //stops the effect from continueing and reset back to normal
+                Camera.main.fieldOfView = fov;
+                yield break;
+            }
+            Camera.main.fieldOfView = Mathf.Clamp(
+                fov + (0.20f * fov * i / (dashDuration * 0.3f)),
                 fov,
                 1.2f * fov
                 );
@@ -136,12 +161,26 @@ public class DwDash : DwAbility
 
         //fov stays for 40% of the dash duration
         yield return new WaitForSeconds(dashDuration * 0.4f);
+        //reset checks
+        if (runningCoroutine == 0)
+        {
+            //stops the effect from continueing and reset back to normal
+            Camera.main.fieldOfView = fov;
+            yield break;
+        }
 
         //decrease fov for 30% of the dash duration
         for (float i = 0; i < dashDuration * 0.3f; i += Time.deltaTime)
         {
-            cam.fieldOfView = Mathf.Clamp(
-                fov + (0.20f * fov * i / (dashDuration * 0.3f)),
+            //reset checks
+            if (runningCoroutine == 0)
+            {
+                //stops the effect from continueing and reset back to normal
+                Camera.main.fieldOfView = fov;
+                yield break;
+            }
+            Camera.main.fieldOfView = Mathf.Clamp(
+                fov - (0.20f * fov * i / (dashDuration * 0.3f)),
                 fov,
                 1.2f * fov
                 );
@@ -149,6 +188,9 @@ public class DwDash : DwAbility
         }
 
         //snap back to normal
-        cam.fieldOfView = fov;
+        Camera.main.fieldOfView = fov;
+
+        //finish coroutine
+        runningCoroutine--;
     }
 }

@@ -115,4 +115,5 @@ public abstract class DwAbility : MonoBehaviour
     public abstract void ActivateAbility();
     public abstract void UpgradeAbility();
     public abstract bool LevelValidityCheck();
+    public abstract void NotifyAbilityRuntimeReset(); //must stop all coroutine, and reset runtime status
 }

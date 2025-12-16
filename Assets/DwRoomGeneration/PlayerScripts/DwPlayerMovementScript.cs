@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using TMPro;
@@ -25,6 +26,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private float mouseY; //mouse y move
     private bool isGrounded = false;
     private bool onRigidGround = false;
+    private bool manualPhysics = false;
     private Vector3 groundVelocity;
     private DwPlayerHpScript hpScript;
 
@@ -88,6 +90,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     public float debugYDirection;
     public float debugZDirection;
     public float debugSpeed;
+    public bool debugIsGrounded;
 
 
     [Header("UI")]
@@ -126,19 +129,32 @@ public class DwPlayerMovementScript : MonoBehaviour
         updateCharacter();
         handleState();
         rotatePlayer();
+        readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
+        writeStats();
+        
+        //when time is stopped by ability effect, start the manual fixed update coroutine
+        if (!manualPhysics && hpScript.isAlive && !gameManager.isPaused && gameManager.isTimeStopped)
+        {
+            manualPhysics = true;
+            StartCoroutine(ManualFixedUpdate());
+        }
     }
 
     private void FixedUpdate() //is basically the collider physics frame (50fps)
     {
-        readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
-        writeStats();
-        //movement is only applied when player is still alive.
-        if (hpScript.isAlive && !gameManager.isPaused) //only run if player is alive and time is moving
+        //run only when time stop ability is not running
+        if (!gameManager.isTimeStopped && Physics.simulationMode != SimulationMode.Script)
         {
-            movement();
+            readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
+            writeStats();
+            //movement is only applied when player is still alive.
+            if (hpScript.isAlive && !gameManager.isPaused) //only run if player is alive and time is moving
+            {
+                movement();
+            }
+            isGrounded = false;
+            onRigidGround = false;
         }
-        isGrounded = false;
-        onRigidGround = false;
     }
 
     //taking in velocity
@@ -506,6 +522,54 @@ public class DwPlayerMovementScript : MonoBehaviour
     }
 
 
+
+
+    //Coroutine =======================================================================
+    
+    //Manual Fixed Update
+    public IEnumerator ManualFixedUpdate()
+    {
+        manualPhysics = true;
+        //change physics simulate mode to manual
+        Physics.simulationMode = SimulationMode.Script;
+        float timer = 0f;
+
+        //if game is in time stop and is not paused, run fixed update
+        while (gameManager.isTimeStopped && !gameManager.isPaused)
+        {
+            timer += Time.unscaledDeltaTime;
+            while (timer >= Time.fixedDeltaTime)
+            {
+                //run simulation
+                if (Physics.simulationMode == SimulationMode.Script)
+                {
+                    readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
+                    writeStats();
+                    //movement is only applied when player is still alive.
+                    if (hpScript.isAlive && !gameManager.isPaused) //only run if player is alive and time is moving
+                    {
+                        movement();
+                    }
+                    isGrounded = false;
+                    onRigidGround = false;
+                    Physics.Simulate(Time.fixedUnscaledDeltaTime);
+                    timer -= Time.fixedDeltaTime;
+                }
+            }
+            yield return null;
+        }
+
+        //turn physic simulation mode back to normal
+        Physics.simulationMode = SimulationMode.FixedUpdate;
+
+        //when time is no longer stopped (isTimeStopped == false), turn it back to non manual
+        manualPhysics = false;
+        yield return null;
+    }
+
+
+
+
     //reading stats ======================================================================================================================================
     private void readStats()
     {
@@ -516,13 +580,14 @@ public class DwPlayerMovementScript : MonoBehaviour
         debugYDirection = moveDirection.y;
         debugZDirection = moveDirection.z;
         debugSpeed = moveDirection.magnitude;
+        debugIsGrounded = isGrounded;
     }
 
     //update the TMP_text
     private void writeStats()
     {
         uiDebugText.text = "Stat\n" +
-            "isGrounded: " + isGrounded + "\n" +
+            "isGrounded: " + debugIsGrounded + "\n" +
             "Speed: " + debugSpeed + "\n\n" +
             "X Velocity: " + xVelocity + "\n" +
             "Y Velocity: " + yVelocity + "\n" +
