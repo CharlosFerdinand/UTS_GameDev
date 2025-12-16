@@ -102,23 +102,23 @@ public class DwHaste : DwAbility
             case 1:
                 setCooldown(getBaseCooldown());
                 abilityDuration = 5f;
-                strength = 0.26f; break;
+                strength = 0.8f; break;
             case 2:
                 setCooldown(0.9f * getBaseCooldown());
                 abilityDuration = 5.2f;
-                strength = 0.3f; break;
+                strength = 1f; break;
             case 3:
                 setCooldown(0.8f * getBaseCooldown());
                 abilityDuration = 5.4f;
-                strength =0.34f; break;
+                strength = 1.2f; break;
             case 4:
                 setCooldown(0.7f * getBaseCooldown());
                 abilityDuration = 5.7f;
-                strength = 0.42f; break;
+                strength = 1.6f; break;
             case 5:
                 setCooldown(0.6f * getBaseCooldown());
                 abilityDuration = 6f;
-                strength = 0.5f; break;
+                strength = 2f; break;
             default:
                 break;
         }

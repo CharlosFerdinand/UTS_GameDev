@@ -133,12 +133,12 @@ public class ShopButtonHandlerScript : MonoBehaviour
     
     public void NavigateMainMenuBtn()
     {
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("DwMainMenu");
     }
 
     public void NavigatePlayBtn()
     {
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene("DwScene");
     }
 
 

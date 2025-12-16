@@ -13,5 +13,6 @@ public class SettingScript : MonoBehaviour
             fovTitle.text = "FOV(" + ((int)fov).ToString() + "):";
         }
         Camera.main.fieldOfView = fov;
+        DwGameManager.gameManager.GetComponent<DwGameManager>().fov = fov;
     }
 }

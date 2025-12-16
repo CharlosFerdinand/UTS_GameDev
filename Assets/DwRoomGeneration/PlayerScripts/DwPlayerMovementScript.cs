@@ -55,7 +55,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     private float speed; //total speed (if in the future we want to add item)
 
     //action
-    private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
+    //private PlayerState playerState; //PlayerState.Jumping, PlayerState.Sprinting, PlayerState.Falling
     private Vector3 moveDirection = Vector3.zero; //movement Direction in the world.
     private Rigidbody rb;
     
@@ -120,6 +120,9 @@ public class DwPlayerMovementScript : MonoBehaviour
         gameManager = DwGameManager.gameManager.GetComponent<DwGameManager>();
         audioSource = this.GetComponent<AudioSource>();
         speed = baseSpeed;
+
+        //apply fov setting
+        Camera.main.fieldOfView = gameManager.fov;
     }
 
     // Update is called once per frame
@@ -203,7 +206,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         {
             if (Input.GetKey(SprintKey))
             {
-                playerState = PlayerState.Sprinting;
+                //playerState = PlayerState.Sprinting;
                 baseSpeed = sprintSpeed;
 
                 //change audio clip to running
@@ -214,7 +217,7 @@ public class DwPlayerMovementScript : MonoBehaviour
             }
             else
             {
-                playerState = PlayerState.Walking;
+                //playerState = PlayerState.Walking;
                 baseSpeed = walkSpeed;
 
                 //change audio clip to walking
@@ -226,7 +229,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         }
         else if (!isGrounded) //when player is not touching the ground
         {
-            playerState = PlayerState.Falling;
+            //playerState = PlayerState.Falling;
         }
     }
 
@@ -278,10 +281,10 @@ public class DwPlayerMovementScript : MonoBehaviour
                 //movement direction normalized into slope's plane
                 horizontalMove = getSlopeNormalizedMove(horizontalMove);
             }
-            horizontalMove = horizontalMove * speed;
+            horizontalMove = horizontalMove * speed * speedMultiplier;
 
             //apply the horizontal movement
-            moveDirection += horizontalMove * speedMultiplier;
+            moveDirection += horizontalMove;
 
             //play audio source, clip is modified from handleState(), should have been HandleState since its a method name, but it was written a few month ago.
             //if audio source's clip is null, set it to walk sound
@@ -315,7 +318,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         jumpCheck();
 
         //apply movement
-        rb.AddForce(moveDirection * 12 * Time.fixedDeltaTime, ForceMode.Impulse);
+        rb.AddForce(moveDirection * 10 * Time.fixedDeltaTime, ForceMode.Impulse);
 
     }//moves the character - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -25,6 +25,7 @@ public class DwGameManager : MonoBehaviour
     public List<DwAbility> abilityScripts = new List<DwAbility>();
     public DwAbility abilityScript;
     public GameObject player;
+    public float fov = 60f;
 
 
 

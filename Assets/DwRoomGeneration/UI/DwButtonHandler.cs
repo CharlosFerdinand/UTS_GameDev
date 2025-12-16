@@ -24,14 +24,14 @@ public class DwButtonHandler : MonoBehaviour
 
     public void NavigatePlayBtn()
     {
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene("DwScene");
     }
 
     public void NavigateMainMenuBtn()
     {
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("DwMainMenu");
         Time.timeScale = 1f;
     }
 

@@ -6,11 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/DwMainMenu.unity
+    guid: aa899a8c8ab8ba74b862ca657ee8dd06
+  - enabled: 1
+    path: Assets/Scenes/DwScene.unity
+    guid: 1e26964e1dca80c41a6202028ac326f5
+  - enabled: 1
+    path: Assets/Scenes/DwShopScene.unity
+    guid: f2a7ae5575cd74746bca0f6d6e90dc7a
+  - enabled: 0
     path: Assets/Scenes/MainMenu.unity
     guid: 603a04a98ee3f8a43b4294899ad650fe
-  - enabled: 1
-    path: Assets/Scenes/MainScene.unity
-    guid: 1e26964e1dca80c41a6202028ac326f5
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
