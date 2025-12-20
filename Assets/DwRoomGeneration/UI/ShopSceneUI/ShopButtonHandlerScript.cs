@@ -36,7 +36,7 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Max" :
             //otherwise show the upgrade cost amount
             gameManager.FindAbility(Ability.Dash).getUpgradeCost()
-            ) + "\n" +
+            ) + "\n\n" +
 
             
             "Flung player forward"
@@ -56,7 +56,7 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Max" :
             //otherwise show the upgrade cost amount
             gameManager.FindAbility(Ability.Haste).getUpgradeCost()
-            ) + "\n" +
+            ) + "\n\n" +
 
 
             "Become faster, increased movement speed"
@@ -75,7 +75,7 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Max" :
             //otherwise show the upgrade cost amount
             gameManager.FindAbility(Ability.TimeStop).getUpgradeCost()
-            ) + "\n" +
+            ) + "\n\n" +
 
             //description
             "Stop the time momentarily, but player can still move"
@@ -225,7 +225,7 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Max" :
             //otherwise show the upgrade cost amount
             gameManager.FindAbility(Ability.Dash).getUpgradeCost()
-            ) + "\n" +
+            ) + "\n\n" +
 
             //ability description
             "Flung player forward"
@@ -267,7 +267,7 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Max" :
             //otherwise show the upgrade cost amount
             gameManager.FindAbility(Ability.Haste).getUpgradeCost()
-            ) + "\n" +
+            ) + "\n\n" +
 
             //ability description
             "Become faster, increased movement speed"
@@ -310,7 +310,7 @@ public class ShopButtonHandlerScript : MonoBehaviour
             "Max" :
             //otherwise show the upgrade cost amount
             gameManager.FindAbility(Ability.TimeStop).getUpgradeCost()
-            ) + "\n" +
+            ) + "\n\n" +
 
             //description
             "Stop the time momentarily, but player can still move"
