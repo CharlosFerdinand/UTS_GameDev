@@ -8,7 +8,7 @@ public class DwMainMenuButtonHandlerScript : MonoBehaviour
     [SerializeField] private GameObject option;
     [SerializeField] private GameObject credits;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         Time.timeScale = 1.0f;
         Cursor.lockState = CursorLockMode.None;
