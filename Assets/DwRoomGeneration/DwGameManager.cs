@@ -110,6 +110,9 @@ public class DwGameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         isPaused = true;
         isTimeStopped = false;
+
+        //update time
+        Time.timeScale = 1f;
     }
 
     //get called every time MainScene start.

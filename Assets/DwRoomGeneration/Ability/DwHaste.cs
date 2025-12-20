@@ -160,52 +160,97 @@ public class DwHaste : DwAbility
     //fov effect coroutine
     public IEnumerator HasteFovCoroutine()
     {
-        //declare variable
-        float timestamp = Time.time;
-        float baseFov = Camera.main.fieldOfView;
-        float fov = baseFov;
-        
-        //linearly increase fov within 0.5 second
-        while (Time.time - timestamp <= 0.5f && Time.timeScale != 0)
+        //do not run coroutine if the same type coroutine is still running.
+        if (runningCoroutine > 0)
         {
-            //check for reset
-            if (runningCoroutine <= 0)
-            {
-                //reset modification
-                Camera.main.fieldOfView = baseFov;
-                yield break;
-            }
-            fov += 0.3f * baseFov * Time.deltaTime;
-            Camera.main.fieldOfView = Mathf.Clamp(fov, baseFov, 1.15f * baseFov);
-            yield return null;
-        }
-
-        //wait for duration - 1 second
-        yield return new WaitForSeconds(abilityDuration - 1);
-        //check for reset
-        if (runningCoroutine <= 0)
-        {
-            //reset modification
-            Camera.main.fieldOfView = baseFov;
             yield break;
         }
 
-        //return fov by linearly decreasing fov within 0.5 second
-        timestamp = Time.time;
-        while (Time.time - timestamp <= 0.5f && Time.timeScale != 0)
+        //start coroutine
+        runningCoroutine++;
+
+        //declare variable
+        float timer = 0f;
+        float baseFov = gameManager.fov;
+        float fov = baseFov;
+
+
+        //for 0.5 second, linearly increase fov by 20%
+        timer = 0.5f;
+        while (timer > 0)
         {
-            //check for reset
-            if (runningCoroutine <= 0)
+            //check if coroutine should be running
+            if (runningCoroutine == 0)
             {
-                //reset modification
+                //reset
                 Camera.main.fieldOfView = baseFov;
                 yield break;
             }
-            fov = fov - 0.5f * baseFov * Time.deltaTime;
-            Camera.main.fieldOfView = Mathf.Clamp(fov, baseFov, 1.15f * baseFov);
+
+            //only counts down when game is not paused
+            if (!gameManager.isPaused)
+            {
+                //ensure all required element is not null
+                if (gameManager.player == null)
+                {
+                    yield break;
+                }
+                timer -= Time.deltaTime;
+
+                //return color run effect
+                fov = Mathf.Clamp(
+                    baseFov + 0.2f * baseFov * (0.5f - timer) / 0.5f,
+                    baseFov,
+                    1.2f * baseFov
+                    );
+                Camera.main.fieldOfView = fov;
+            }
             yield return null;
         }
-        //snap back to normal
-        Camera.main.fieldOfView = baseFov;
+        //snap to expected result
+        fov = baseFov * 1.2f;
+        Camera.main.fieldOfView = fov;
+
+
+        //wait for duration - 1 second
+        yield return new WaitForSeconds(abilityDuration - 1);
+
+        //for 0.5 second, linearly return fov to normal
+        timer = 0.5f;
+        while (timer > 0)
+        {
+            //check if coroutine should be running
+            if (runningCoroutine == 0)
+            {
+                //reset
+                Camera.main.fieldOfView = baseFov;
+                yield break;
+            }
+
+            //only counts down when game is not paused
+            if (!gameManager.isPaused)
+            {
+                //ensure all required element is not null
+                if (gameManager.player == null)
+                {
+                    yield break;
+                }
+                timer -= Time.deltaTime;
+
+                //linearly return fov to normal
+                fov = Mathf.Clamp(
+                    1.2f * baseFov - 0.2f * baseFov * (0.5f - timer) / 0.5f,
+                    baseFov,
+                    1.2f * baseFov
+                    );
+                Camera.main.fieldOfView = fov;
+            }
+            yield return null;
+        }
+
+        //snap to expected fov
+        Camera.main.fieldOfView = gameManager.fov;
+        runningCoroutine--;
+
     }
 }

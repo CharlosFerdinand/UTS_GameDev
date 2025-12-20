@@ -151,6 +151,8 @@ public class DwTimeStop : DwAbility
         //return from time stop to normal
         gameManager.isTimeStopped = false;
         isActive = false;
+        Time.timeScale = 1f;
+        Physics.simulationMode = SimulationMode.FixedUpdate;
     }
 
 
@@ -206,20 +208,16 @@ public class DwTimeStop : DwAbility
                 }
                 timer -= Time.unscaledDeltaTime;
 
-                //modify color adjustment and fov
-                saturation = Mathf.Clamp(
-                    saturationInNormal + (timer / 0.25f) * 0.5f*(saturationInTimeStop - saturationInNormal)
-                    , saturationInTimeStop, saturationInNormal);
-                colorAdjustments.saturation.value = saturation;
+                //linearly increase fov by 30%
                 fov = Mathf.Clamp(
-                    baseFov + (timer / 0.25f) * (0.15f * baseFov - baseFov)
-                    , baseFov, 0.15f * baseFov);
+                    baseFov + (0.25f - timer / 0.25f) * (0.3f * baseFov)
+                    , baseFov, 1.3f * baseFov);
                 Camera.main.fieldOfView = fov;
             }
             yield return null;
         }
         //snap expected value
-        Camera.main.fieldOfView = 0.15f*baseFov;
+        Camera.main.fieldOfView = 1.3f*baseFov;
         saturation = saturationInNormal + 0.5f*(saturationInTimeStop - saturationInNormal);
         colorAdjustments.saturation.value = saturation;
 
@@ -246,19 +244,20 @@ public class DwTimeStop : DwAbility
                 }
                 timer -= Time.unscaledDeltaTime;
 
-                //further desaturate coloradjustment and bounce back fov to base fov
+                //desaturate coloradjustment
                 colorAdjustments.saturation.value = Mathf.Clamp(
-                    saturation + (timer / 0.25f) * (saturationInTimeStop - saturation)
+                    saturation + (0.25f - timer / 0.25f) * (saturationInTimeStop - saturationInNormal)
                     , saturationInTimeStop, saturationInNormal);
+                //linearly return fov to normal
                 fov = Mathf.Clamp(
-                    fov + (timer / 0.25f) * (baseFov - fov)
-                    , baseFov, fov);
+                    1.3f * baseFov - (0.25f - timer / 0.25f) * (0.3f * baseFov)
+                    , baseFov, 1.3f * baseFov);
                 Camera.main.fieldOfView = fov;
             }
             yield return null;
         }
         //snap variable to expected value
-        Camera.main.fieldOfView = baseFov;
+        Camera.main.fieldOfView = gameManager.fov;
         colorAdjustments.saturation.value = saturationInTimeStop;
 
 
@@ -299,7 +298,7 @@ public class DwTimeStop : DwAbility
 
                 //return color adjustment
                 saturation = Mathf.Clamp(
-                    saturationInTimeStop + (timer / 0.5f) * (saturationInNormal - saturationInTimeStop)
+                    saturationInTimeStop + (0.5f - timer / 0.5f) * (saturationInNormal - saturationInTimeStop)
                     , saturationInTimeStop, saturationInNormal);
                 colorAdjustments.saturation.value = saturation;
             }
