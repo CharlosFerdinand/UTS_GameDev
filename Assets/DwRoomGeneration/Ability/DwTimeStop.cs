@@ -18,6 +18,7 @@ public class DwTimeStop : DwAbility
 
     //reset
     int runningCoroutine = 0;
+    bool abilityIsRunning = false;
 
     //Lifecycle =======================================================================
 
@@ -84,13 +85,6 @@ public class DwTimeStop : DwAbility
 
             //run coroutine for fov effect
             StartCoroutine(TimeStopPostProcessingCoroutine());
-
-            //play audio
-            /*
-            Camera.main.gameObject.GetComponent<AudioSource>().clip = AudioBankScript.dash;
-            Camera.main.gameObject.GetComponent<AudioSource>().loop = false;
-            Camera.main.gameObject.GetComponent<AudioSource>().time = 0.6f;
-            Camera.main.gameObject.GetComponent<AudioSource>().Play();*/
         }
     }
 
@@ -134,6 +128,7 @@ public class DwTimeStop : DwAbility
 
     public override void NotifyAbilityRuntimeReset()
     {
+        abilityIsRunning = false;
         runningCoroutine = 0;
         CooldownFinish();
         AbilityFinish();
@@ -163,8 +158,14 @@ public class DwTimeStop : DwAbility
     //visual effect coroutine (running when time stop is active)
     public IEnumerator TimeStopPostProcessingCoroutine()
     {
+        //if ability coroutine is already running, stop this coroutine
+        if (abilityIsRunning)
+        {
+            yield break;
+        }
+
         //start coroutine
-        runningCoroutine++;
+        abilityIsRunning = true;
 
         //declare setup variable
         float saturationInTimeStop = -100f;
@@ -191,7 +192,7 @@ public class DwTimeStop : DwAbility
         while (timer > 0)
         {
             //check for reset
-            if (runningCoroutine <= 0)
+            if (!abilityIsRunning)
             {
                 //reset
                 Camera.main.fieldOfView = baseFov;
@@ -227,7 +228,7 @@ public class DwTimeStop : DwAbility
         while (timer > 0)
         {
             //check for reset
-            if (runningCoroutine <= 0)
+            if (!abilityIsRunning)
             {
                 //reset
                 Camera.main.fieldOfView = baseFov;
@@ -266,7 +267,7 @@ public class DwTimeStop : DwAbility
         while (timer > 0)
         {
             //check for reset
-            if (runningCoroutine <= 0)
+            if (!abilityIsRunning)
             {
                 //reset
                 Camera.main.fieldOfView = baseFov;
@@ -309,7 +310,7 @@ public class DwTimeStop : DwAbility
         Camera.main.fieldOfView = baseFov;
 
         //end coroutine
-        runningCoroutine--;
+        abilityIsRunning = false;
     }
 
     //Action<T> is for void, T is for input

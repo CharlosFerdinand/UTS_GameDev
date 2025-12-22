@@ -2,16 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-//add this for key
-public enum Audio
-{
-    Dash,
-    Spiketrap,
-    Walk,
-    Run,
-    Lantern
-}
-
 
 public class AudioBankScript : MonoBehaviour
 {

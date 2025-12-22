@@ -44,7 +44,7 @@ public class DwPlayerHpScript : MonoBehaviour, DwInterfaceDamageAble
         if (hp<=0 && isAlive)
         {
             isAlive = false;
-            gameManager.GameOver(uiDeathScreen); //this add score to game manager
+            gameManager.EndGame(uiDeathScreen); //this add score to game manager
         }
         //apply regen while alive
         else

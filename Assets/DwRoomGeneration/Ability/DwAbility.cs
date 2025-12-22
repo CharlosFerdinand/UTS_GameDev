@@ -14,9 +14,9 @@ using UnityEngine;
 //public getName - get ability name in Ability enum type.
 //getBaseCooldown - get base cooldown
 //setCooldown - set this everytime you upgrade (if each upgrade decrease the cooldown)
-//getCooldown - return the cooldown for current level
+//public getCooldown - return the cooldown for current level
 //setLevel - modify level
-//getLevel - get level
+//public getLevel - get level
 //public getUpgradeCost - will return upgrade cost when not max level yet, otherwise return -1
 public abstract class DwAbility : MonoBehaviour
 {
@@ -25,7 +25,6 @@ public abstract class DwAbility : MonoBehaviour
     private float abilityCooldown = 1f;
     private int abilityLevel = 0;
     private List<int> upgradeCost = new List<int>();
-    protected MonoBehaviour monoBehaviour;
 
     //ability name
     private void setName(Ability ability)

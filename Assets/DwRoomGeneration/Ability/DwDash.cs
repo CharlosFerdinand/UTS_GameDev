@@ -21,7 +21,7 @@ public class DwDash : DwAbility
     private DwGameManager gameManager;
 
     //reset
-    private int runningCoroutine = 0;
+    private bool coroutineIsRunning = false;
 
     //initialization
     private void Awake()
@@ -113,7 +113,7 @@ public class DwDash : DwAbility
     public override void NotifyAbilityRuntimeReset()
     {
         //stop coroutine and reset everything to normal
-        runningCoroutine = 0;
+        coroutineIsRunning = false;
         //isActive, isReady
         CooldownFinish();
         AbilityFinish();
@@ -138,14 +138,24 @@ public class DwDash : DwAbility
     //coroutine for setting up the fov while dashing
     public IEnumerator DashFovCoroutine()
     {
+        //do not run coroutine if the same type coroutine is still running.
+        if (coroutineIsRunning)
+        {
+            yield break;
+        }
+
         //inform component running coroutine amount update
-        runningCoroutine++;
+        coroutineIsRunning = true;
+
+        //declare variable
         float fov = Camera.main.fieldOfView;
+        float timer = 0f;
+
         //increase fov for 30% of the dash duration
         for (float i = 0; i < dashDuration * 0.3f; i += Time.deltaTime)
         {
             //reset checks
-            if (runningCoroutine == 0)
+            if (!coroutineIsRunning)
             {
                 //stops the effect from continueing and reset back to normal
                 Camera.main.fieldOfView = fov;
@@ -160,9 +170,28 @@ public class DwDash : DwAbility
         }
 
         //fov stays for 40% of the dash duration
-        yield return new WaitForSeconds(dashDuration * 0.4f);
+        timer = dashDuration * 0.4f;
+        while (timer > 0)
+        {
+            //check if coroutine should be running
+            if (!coroutineIsRunning)
+            {
+                //reset
+                Camera.main.fieldOfView = fov;
+                yield break;
+            }
+
+            //only counts down when game is not paused
+            if (!gameManager.isPaused)
+            {
+                timer -= Time.deltaTime;
+            }
+            yield return null;
+        }
+
+
         //reset checks
-        if (runningCoroutine == 0)
+        if (!coroutineIsRunning)
         {
             //stops the effect from continueing and reset back to normal
             Camera.main.fieldOfView = fov;
@@ -173,7 +202,7 @@ public class DwDash : DwAbility
         for (float i = 0; i < dashDuration * 0.3f; i += Time.deltaTime)
         {
             //reset checks
-            if (runningCoroutine == 0)
+            if (!coroutineIsRunning)
             {
                 //stops the effect from continueing and reset back to normal
                 Camera.main.fieldOfView = fov;
@@ -191,6 +220,6 @@ public class DwDash : DwAbility
         Camera.main.fieldOfView = fov;
 
         //finish coroutine
-        runningCoroutine--;
+        coroutineIsRunning = false;
     }
 }

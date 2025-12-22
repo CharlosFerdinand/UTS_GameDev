@@ -91,14 +91,20 @@ public class DwAbilityUiScript : MonoBehaviour
                 //count downward
                 timer -= Time.unscaledDeltaTime;
                 //update ui text
-                uiAbilityText.text = "" + Mathf.Ceil(timer);
+                if (uiAbilityText != null)
+                {
+                    uiAbilityText.text = "" + Mathf.Ceil(timer);
+                }
             }
             yield return null;//wait till next frame
         }
 
         //change icon back to it's ready state, and revert text back to "Q"
-        uiAbilityIcon.texture = iconReady;
-        uiAbilityText.text = "Q";
+        if (uiAbilityIcon != null && uiAbilityText != null)
+        {
+            uiAbilityIcon.texture = iconReady;
+            uiAbilityText.text = "Q";
+        }
 
         //is no longer on cooldown
         onCooldown = false;

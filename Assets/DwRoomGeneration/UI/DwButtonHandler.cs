@@ -24,12 +24,14 @@ public class DwButtonHandler : MonoBehaviour
 
     public void NavigatePlayBtn()
     {
+        gameManager.abilityScript.NotifyAbilityRuntimeReset();
         DwGameManager.gameManager.GetComponent<DwGameManager>().isPaused = false;
         SceneManager.LoadScene("DwScene");
     }
 
     public void NavigateMainMenuBtn()
     {
+        gameManager.abilityScript.NotifyAbilityRuntimeReset();
         DwGameManager.gameManager.GetComponent<DwGameManager>().isPaused = false;
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;

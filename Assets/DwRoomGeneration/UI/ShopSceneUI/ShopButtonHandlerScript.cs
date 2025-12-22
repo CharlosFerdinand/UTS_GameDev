@@ -43,6 +43,13 @@ public class ShopButtonHandlerScript : MonoBehaviour
             ;
 
 
+        //update the title according to whether haste has been unlocked or not
+        if (gameManager.FindAbility(Ability.Haste).LevelValidityCheck())
+        {
+            hasteUI.transform.Find("AbilityName").GetComponent<TMP_Text>().text =
+                "Haste";
+        }
+
         //update haste ability description
         hasteUI.transform.Find("Description").gameObject.GetComponent<TMP_Text>().text =
             //level
@@ -61,6 +68,14 @@ public class ShopButtonHandlerScript : MonoBehaviour
 
             "Become faster, increased movement speed"
             ;
+
+
+        //update the title according to whether time stop has been unlocked or not
+        if (gameManager.FindAbility(Ability.Haste).LevelValidityCheck())
+        {
+            timeStopUI.transform.Find("AbilityName").GetComponent<TMP_Text>().text =
+                "Time Stop";
+        }
 
         //update time stop ability description
         timeStopUI.transform.Find("Description").gameObject.GetComponent<TMP_Text>().text =

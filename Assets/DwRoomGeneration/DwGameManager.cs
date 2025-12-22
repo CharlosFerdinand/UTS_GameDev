@@ -43,7 +43,7 @@ public class DwGameManager : MonoBehaviour
         {
             //first time created, set name, get the game manager into static var, dont destroy
             this.gameObject.name = "gameManager";
-            gameManager = GameObject.Find("gameManager");
+            gameManager = this.gameObject;
             DontDestroyOnLoad(gameManager);
 
             //initialize ability component
@@ -101,7 +101,7 @@ public class DwGameManager : MonoBehaviour
     //game lifecycle ==================================================================
     
     //get called when player hp is considered dead.
-    public void GameOver(GameObject uiDeathScreen)
+    public void EndGame(GameObject uiDeathScreen)
     {
         //put score into point and update ui
         point += score;
@@ -111,8 +111,8 @@ public class DwGameManager : MonoBehaviour
         isPaused = true;
         isTimeStopped = false;
 
-        //update time
-        Time.timeScale = 1f;
+        //reset ability runtime status
+        abilityScript.NotifyAbilityRuntimeReset();
     }
 
     //get called every time MainScene start.
@@ -129,7 +129,7 @@ public class DwGameManager : MonoBehaviour
         score = 0;
         AbilityCheck();
         player = GameObject.Find("Player");
-
+        
         //reset ability runtime status
         abilityScript.NotifyAbilityRuntimeReset();
     }

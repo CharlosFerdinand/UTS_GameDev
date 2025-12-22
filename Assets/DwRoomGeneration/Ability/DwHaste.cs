@@ -21,7 +21,7 @@ public class DwHaste : DwAbility
     private DwGameManager gameManager;
 
     //reset
-    private int runningCoroutine = 0;
+    private bool coroutineIsRunning = false;
 
 
 
@@ -82,13 +82,6 @@ public class DwHaste : DwAbility
             
             //run coroutine for fov effect
             StartCoroutine(HasteFovCoroutine());
-
-            //play audio
-            /*
-            Camera.main.gameObject.GetComponent<AudioSource>().clip = AudioBankScript.dash;
-            Camera.main.gameObject.GetComponent<AudioSource>().loop = false;
-            Camera.main.gameObject.GetComponent<AudioSource>().time = 0.6f;
-            Camera.main.gameObject.GetComponent<AudioSource>().Play();*/
         }
     }
 
@@ -133,7 +126,7 @@ public class DwHaste : DwAbility
     public override void NotifyAbilityRuntimeReset()
     {
         //stops all coroutine and reset
-        runningCoroutine = 0;
+        coroutineIsRunning = false;
         CooldownFinish();
         AbilityFinish();
     }
@@ -148,7 +141,10 @@ public class DwHaste : DwAbility
     private void AbilityFinish()
     {
         //reset
-        gameManager.player.GetComponent<DwPlayerMovementScript>().speedMultiplier = 1;
+        if (gameManager.player != null)
+        {
+            gameManager.player.GetComponent<DwPlayerMovementScript>().speedMultiplier = 1;
+        }
         isActive = false;
     }
 
@@ -161,13 +157,13 @@ public class DwHaste : DwAbility
     public IEnumerator HasteFovCoroutine()
     {
         //do not run coroutine if the same type coroutine is still running.
-        if (runningCoroutine > 0)
+        if (coroutineIsRunning)
         {
             yield break;
         }
 
         //start coroutine
-        runningCoroutine++;
+        coroutineIsRunning = true;
 
         //declare variable
         float timer = 0f;
@@ -180,7 +176,7 @@ public class DwHaste : DwAbility
         while (timer > 0)
         {
             //check if coroutine should be running
-            if (runningCoroutine == 0)
+            if (!coroutineIsRunning)
             {
                 //reset
                 Camera.main.fieldOfView = baseFov;
@@ -213,14 +209,31 @@ public class DwHaste : DwAbility
 
 
         //wait for duration - 1 second
-        yield return new WaitForSeconds(abilityDuration - 1);
+        timer = abilityDuration - 1.0f;
+        while (timer > 0)
+        {
+            //check if coroutine should be running
+            if (!coroutineIsRunning)
+            {
+                //reset
+                Camera.main.fieldOfView = baseFov;
+                yield break;
+            }
+
+            //only counts down when game is not paused
+            if (!gameManager.isPaused)
+            {
+                timer -= Time.deltaTime;
+            }
+            yield return null;
+        }
 
         //for 0.5 second, linearly return fov to normal
         timer = 0.5f;
         while (timer > 0)
         {
             //check if coroutine should be running
-            if (runningCoroutine == 0)
+            if (!coroutineIsRunning)
             {
                 //reset
                 Camera.main.fieldOfView = baseFov;
@@ -250,7 +263,9 @@ public class DwHaste : DwAbility
 
         //snap to expected fov
         Camera.main.fieldOfView = gameManager.fov;
-        runningCoroutine--;
+
+        //end coroutine
+        coroutineIsRunning = false;
 
     }
 }

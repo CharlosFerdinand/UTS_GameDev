@@ -132,8 +132,6 @@ public class DwPlayerMovementScript : MonoBehaviour
         updateCharacter();
         handleState();
         rotatePlayer();
-        readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
-        writeStats();
         
         //when time is stopped by ability effect, start the manual fixed update coroutine
         if (!manualPhysics && hpScript.isAlive && !gameManager.isPaused && gameManager.isTimeStopped)
@@ -167,7 +165,7 @@ public class DwPlayerMovementScript : MonoBehaviour
         {
             if (collision.gameObject.GetComponent<Rigidbody>() != null && Physics.Raycast(this.transform.position,Vector3.down, centerToFeet+feetToGround, layer))
             {
-                groundVelocity = collision.gameObject.GetComponent<Rigidbody>().linearVelocity / 2;
+                groundVelocity = collision.gameObject.GetComponent<Rigidbody>().linearVelocity;
                 onRigidGround = true;
             }
         }
@@ -176,6 +174,7 @@ public class DwPlayerMovementScript : MonoBehaviour
     //ground checking
     private void OnTriggerStay(Collider other)
     {
+        //checks if other have groundTag, or if other have one of the corresponding layer mask.
         if (other.gameObject.tag == "groundTag" || (other.gameObject.layer & layer) != 0)
         {
             isGrounded = true;
@@ -537,26 +536,30 @@ public class DwPlayerMovementScript : MonoBehaviour
         Physics.simulationMode = SimulationMode.Script;
         float timer = 0f;
 
-        //if game is in time stop and is not paused, run fixed update
-        while (gameManager.isTimeStopped && !gameManager.isPaused)
-        {
-            timer += Time.unscaledDeltaTime;
-            while (timer >= Time.fixedDeltaTime)
+        //while game is in time stop and is not paused, run manual fixed update simulation
+        while (gameManager.isTimeStopped)
+        { //this block is equivalent to normal Update()
+            //only run simulation when game is not paused.
+            if (!gameManager.isPaused)
             {
-                //run simulation
-                if (Physics.simulationMode == SimulationMode.Script)
-                {
-                    readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
-                    writeStats();
-                    //movement is only applied when player is still alive.
-                    if (hpScript.isAlive && !gameManager.isPaused) //only run if player is alive and time is moving
+                timer += Time.unscaledDeltaTime;
+                while (timer >= Time.fixedDeltaTime)
+                { //this block is equivalent to FixedUpdate()
+                    //run simulation
+                    if (Physics.simulationMode == SimulationMode.Script)
                     {
-                        movement();
+                        readStats(); //read stats such as speed velocity, etc. the record are info from previous physics frame (aka FixedUpdate)
+                        writeStats();
+                        //movement is only applied when player is still alive.
+                        if (hpScript.isAlive && !gameManager.isPaused) //only run if player is alive and time is moving
+                        {
+                            movement();
+                        }
+                        isGrounded = false;
+                        onRigidGround = false;
+                        Physics.Simulate(Time.fixedUnscaledDeltaTime);
+                        timer -= Time.fixedDeltaTime;
                     }
-                    isGrounded = false;
-                    onRigidGround = false;
-                    Physics.Simulate(Time.fixedUnscaledDeltaTime);
-                    timer -= Time.fixedDeltaTime;
                 }
             }
             yield return null;

@@ -18609,7 +18609,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 0}
   minimumSpeed: 4
-  interpolationRate: 0.1
+  interpolationRate: 0.15
   damage: 10
   gracePeriod: 10
   damageRate: 1
