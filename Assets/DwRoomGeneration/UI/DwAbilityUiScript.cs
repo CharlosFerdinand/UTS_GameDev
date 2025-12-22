@@ -50,7 +50,7 @@ public class DwAbilityUiScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q) && !onCooldown)
+        if (Input.GetKeyDown(KeyCode.Q) && !onCooldown && !gameManager.isPaused)
         {
             onCooldown = true;
             switch(gameManager.ability)
@@ -89,12 +89,14 @@ public class DwAbilityUiScript : MonoBehaviour
             if (Time.timeScale != 0)
             {
                 //count downward
-                timer -= Time.unscaledDeltaTime;
-                //update ui text
+                timer -= Time.deltaTime;
+                //update ui text if ui text is not null
                 if (uiAbilityText != null)
                 {
                     uiAbilityText.text = "" + Mathf.Ceil(timer);
                 }
+                //or else, stop the coroutine
+                else yield break;
             }
             yield return null;//wait till next frame
         }

@@ -89,7 +89,7 @@ public class DwGameManager : MonoBehaviour
             Time.timeScale = 1f;
         }
         //activate ability on key click
-        if (Input.GetKeyDown(KeyCode.Q) && abilityScript != null && player != null)
+        if (Input.GetKeyDown(KeyCode.Q) && abilityScript != null && player != null && !isPaused)
         {
             abilityScript.ActivateAbility();
         }
